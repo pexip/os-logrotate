@@ -1,10 +1,12 @@
 Source: logrotate
 Section: admin
 Priority: important
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Pexip AS <packaging@pexip.com>
+XSBC-Pexip-Original-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Paul Martin <pm@debian.org>
 Build-Depends: libpopt-dev, debhelper (>= 7), quilt, libselinux1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
 Standards-Version: 3.8.4
+XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
 
 Package: logrotate
 Architecture: any
