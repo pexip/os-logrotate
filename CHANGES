@@ -1,3 +1,123 @@
+3.8.6 -> 3.8.7
+	- Fixed --force/-f option handling together with "size" directive
+	  (3.8.5 regression).
+	- Use "logrotate_tmp_t" context for SELinux tests and if this context does
+	  not exist, skip SELinux related tests.
+
+3.8.5 -> 3.8.6
+	- Fixed memory corruption caused by rotation directory which does not
+	  exist with "sharedscripts" together with "prerotate" script.
+
+3.8.4 -> 3.8.5
+	- Improved rotation during daylight saving time and between timezone
+	  changes.
+	- Fixed ACL setting problem caused by ext3 erroneously reporting ENOSYS
+	  instead of ENOSUP.
+	- Do not continue with rotation if state file is corrupted.
+	- Make logrotate.status creation atomic.
+	- Allow "hourly" rotation. See manpage for more information.
+	- Use "/bin/echo" in tests. Fixes tests execution in Dash.
+	- Do no try to parse config files bigger than 16MB.
+	- Improved manpage consistency and formatting.
+	- Fix race condition between acl_set_fd() and fchmod().
+
+3.8.3 -> 3.8.4
+	- Added --version command line option
+	- Disable ACL tests if logrotate is not compiled WITH_ACL support or if 
+	  ACLs are not supported by the system running tests
+	- Disable SELinux tests if logrotate is not compiled WITH_SELINUX support
+	  or if SELinux is not supported by the system running tests
+	- Fixed bug which prevented skipping particular log file config
+	  if the config contained errors.
+	- Fixed skipping of configs containing firstaction/lastaction scripts
+	  with '}' character in case of error before these scripts.
+	- Support also 'K' unit for *size directives.
+	- Added preremove option to let admin to do something with the old logs
+	  before they are removed by logrotate.
+	- Fixed possible loop in tabooext parsing.
+	- Move code to set SELinux context before compressLogFile calls to create
+	  compressed log files with the proper context.
+	- Call prerotate/postrotate script only for really rotated files in
+	  nosharedscripts mode (as stated in man page).
+
+3.8.2 -> 3.8.3
+	- Fixed setting "size" bigger than 4GB on 32bit architectures
+	- Do not overwrite mode set by "create" option when using ACL. "create"
+	  directive is now not mixed up with ACLs. If you use "create" in config
+	  file and log file has some ACLs set, ACLs are not kept and are
+	  overwritten by the mode set in "create" directive.
+	- Mode argument in "create" directive can be omitted. Only owner and group
+	  is set in this case. Check man page for more info.
+
+3.8.1 -> 3.8.2
+	- show error and ignore config if '{' is not present after log files
+	  declaration
+	- support whitespaces in compressoptions directive
+	- support for tilde expansion in config files
+	- 'su' directive does not affect script execution - scripts
+	  are executed as a root if 'su' directive is present
+	- fixed mail sending for 'mailfirst', 'dateext' and 'delaycompress'
+	  combination
+	- do not use gzip/gunzip from /usr/local on Solaris
+	- add O_NOFOLLOW when opening files as safeguard against symlink tricks.
+	  Symlinks rotation is now officially unsupported. It didn't work
+	  as expected in the past anyway.
+	- do not run external programs with uid != euid
+	- fixed potential bad-free when ACL is used
+	- Do not include alloca.h on NetBSD, since alloca() is declared in
+	  stdlib.h there
+	- 13 new tests added
+
+3.8.0 -> 3.8.1
+	- fixed 1 memory leak in prerotateSingleLog
+	- another fixes for Solaris
+	- fixed HP-UX compilation and default config 
+	- do not redirect logrotate errors to /dev/null in cron script
+	- fixed "size" directive parsing
+	- handle situation when acl_get_fd is supported, but acl_set_fd is not
+	- added "maxsize" directive (see man page)
+
+3.7.9 -> 3.8.0
+	- added "dateyesterday" option (see man page)
+	- fixed crash when config file had exactly 4096*N bytes
+	- added WITH_ACL make option to link against -lacl and preserve ACLs
+	  during rotation
+	- added "su" option to define user/group for rotation. Logrotate now
+	  skips directories which are world writable or writable by group
+	  which is not "root" unless "su" directive is used.
+	- fixed CVE-2011-1098: race condition by creation of new files
+	- fixed possible shell injection when using "shred" directive (CVE-2011-1154)
+	- fixed escaping of file names within 'write state' action (CVE-2011-1155)
+	- better 'size' directive description
+	- fixed possible buffer-overflow when reading config files
+	- NetBSD/FreeBSD compilation fixes
+	- Solaris compilation fixes
+
+3.7.8 -> 3.7.9
+	- fix building on Solaris (patch by András Szilárd)
+	- don't copy config files on the stack -- mmap them instead
+	  (fixes segfaults with too large/invalid config files)
+	- symlinked conf file man page as requested by Fedora guidelines
+	  (thanks to Ivana Hutarova Varekova)
+	- cron script logrotate.cron redirects output to /dev/null
+	- added rotating (copying) non-writable, readable files
+	  (patch by Henrique Martins)
+	- fixed missingok problem with globs
+	  (taken from the Debian patches by Ted Percival 
+	   <ted@midg3t.net>)
+	- fixed bug when log files could be removed even there was
+	  some error in rotation process.
+	- allow setting size greater than 4.2GB in configuration file
+	- pass currently rotated file to postrotate/prerotate script
+	  in nosharedscripts mode
+	- added new TabooExts: ".disabled", ".dpkg-old", ".dpkg-dist",
+	  ".dpkg-new", ".cfsaved", ".ucf-old", ".ucf-dist", ".ucf-new"
+	  (taken from the Debian patches by Paul Martin <pm@debian.org>)
+	- Don't change utime atime/mtime when compressing files
+	  (taken from the Debian patches by Paul Martin <pm@debian.org>)
+	- Better *rotate scripts parser. (taken from the Debian patches)
+	- Allow 'include' directive in log file definitions
+
 3.7.7 -> 3.7.8
 	- do not exit on status file errors
 	- limit config file inclusion nesting

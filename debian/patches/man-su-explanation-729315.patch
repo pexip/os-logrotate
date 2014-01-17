@@ -1,0 +1,16 @@
+Index: logrotate-3.8.6/logrotate.8
+===================================================================
+--- logrotate-3.8.6.orig/logrotate.8	2013-09-03 21:55:05.305538834 +0100
++++ logrotate-3.8.6/logrotate.8	2013-11-19 00:04:51.095192999 +0000
+@@ -503,7 +503,10 @@
+ \fBsu \fIuser\fR \fIgroup\fR
+ Rotate log files set under this user and group instead of using default
+ user/group (usually root). \fIuser\fR specifies the user name used for
+-rotation and \fIgroup\fR specifies the group used for rotation. 
++rotation and \fIgroup\fR specifies the group used for rotation. If the
++user/group you specify here does not have sufficient privilege to make 
++files with the ownership you've specified in a \fIcreate\fR instruction, 
++it will cause an error.
+ 
+ .TP
+ \fBtabooext\fR [+] \fIlist\fR

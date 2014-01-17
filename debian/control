@@ -1,15 +1,18 @@
 Source: logrotate
 Section: admin
 Priority: important
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-XSBC-Original-Maintainer: Paul Martin <pm@debian.org>
-Build-Depends: libpopt-dev, debhelper (>= 7), quilt, libselinux1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
-Standards-Version: 3.8.4
+Maintainer: Paul Martin <pm@debian.org>
+Build-Depends: libpopt-dev, debhelper (>= 9),
+ libselinux1-dev [linux-any], libacl1-dev [linux-any]
+Vcs-Svn: http://svn.fedorahosted.org/svn/logrotate/
+Homepage: https://fedorahosted.org/logrotate/
+Standards-Version: 3.9.5
 
 Package: logrotate
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, cron | anacron | fcron, base-passwd (>= 2.0.3.4)
-Suggests: mailx
+Depends: ${shlibs:Depends}, ${misc:Depends}, cron | anacron | cron-daemon, base-passwd (>= 2.0.3.4)
+Breaks: postgresql-common (<= 126)
+Recommends: mailx
 Description: Log rotation utility
  The logrotate utility is designed to simplify the administration of
  log files on a system which generates a lot of log files.  Logrotate

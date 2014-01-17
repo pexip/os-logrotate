@@ -9,11 +9,11 @@ the logfile already had (and probably will have after the operation).
 
 Thanks to Florian Zumbiehl <florz@gmx.de> for being zealously persistent.
 
-Index: logrotate-3.7.8/logrotate.c
+Index: logrotate-3.7.9/logrotate.c
 ===================================================================
---- logrotate-3.7.8.orig/logrotate.c	2009-08-06 16:47:25.878020710 +0100
-+++ logrotate-3.7.8/logrotate.c	2009-08-14 23:19:48.724198822 +0100
-@@ -229,7 +229,7 @@
+--- logrotate-3.7.9.orig/logrotate.c	2011-06-22 15:15:29.087530649 +0100
++++ logrotate-3.7.9/logrotate.c	2011-06-22 15:15:37.963764798 +0100
+@@ -233,7 +233,7 @@
  {
      int fd;
  
