@@ -1,3 +1,22 @@
+logrotate (3.11.0-0.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * New upstream version 3.11.0  Closes: #734688
+  * Refresh patch queue, and fix several regressions
+  * Update watch file. Closes: #844578, also Homepage information
+  * Specify bsd-mailx as default mailx provider. Closes: #849743
+
+ -- Christoph Biedl <debian.axhn@manchmal.in-ulm.de>  Sat, 07 Jan 2017 19:54:50 +0100
+
+logrotate (3.8.7-2) unstable; urgency=low
+
+  * New patch:
+    - taboo-716649.patch: Add .dpkg-bak and .dpkg-del to taboo extensions.
+      (Closes: #716649)
+  * Bump standards version to 3.9.6. (No changes needed.)
+
+ -- Paul Martin <pm@debian.org>  Tue, 05 May 2015 23:18:48 +0100
+
 logrotate (3.8.7-1) unstable; urgency=low
 
   * New patch:

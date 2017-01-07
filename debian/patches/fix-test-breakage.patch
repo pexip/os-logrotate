@@ -1,0 +1,17 @@
+Subject: Fix broken test suite runner
+Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Forwarded: No
+
+    That line appearently got lost between 3.8.7 and 3.11.0 but is
+    required to make the tests run.
+
+--- a/test/test
++++ b/test/test
+@@ -3,6 +3,7 @@
+ ACL_TESTS=1
+ SELINUX_TESTS=0
+ SYSLOG_TESTS=0
++LOGROTATE=../logrotate
+ M="-m ./mailer"
+ S="-s state"
+ RLR="$LOGROTATE $M $S"

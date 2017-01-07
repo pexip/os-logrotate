@@ -2,7 +2,7 @@
 #define H_LOGROTATE
 
 #include <sys/types.h>
-#include <sys/queue.h>
+#include "queue.h"
 #include <glob.h>
 
 #include "config.h"
@@ -20,6 +20,8 @@
 #define LOG_FLAG_SHRED		(1 << 10)
 #define LOG_FLAG_SU			(1 << 11)
 #define LOG_FLAG_DATEYESTERDAY	(1 << 12)
+#define LOG_FLAG_OLDDIRCREATE	(1 << 13)
+#define LOG_FLAG_TMPFILENAME	(1 << 14)
 
 #define NO_MODE ((mode_t) -1)
 #define NO_UID  ((uid_t) -1)
@@ -27,6 +29,14 @@
 
 #define NO_FORCE_ROTATE 0
 #define FORCE_ROTATE    1
+
+#ifdef HAVE_LIBSELINUX
+#define WITH_SELINUX 1
+#endif
+
+#ifdef HAVE_LIBACL
+#define WITH_ACL 1
+#endif
 
 struct logInfo {
     char *pattern;
@@ -36,14 +46,16 @@ struct logInfo {
     enum { ROT_HOURLY, ROT_DAYS, ROT_WEEKLY, ROT_MONTHLY, ROT_YEARLY, ROT_SIZE
             } criterium;
     unsigned long long threshhold;
-	unsigned long long maxsize;
+    unsigned long long maxsize;
     unsigned long long minsize;
     int rotateCount;
+    int rotateMinAge;
     int rotateAge;
     int logStart;
     char *pre, *post, *first, *last, *preremove;
     char *logAddress;
     char *extension;
+    char *addextension;
     char *compress_prog;
     char *uncompress_prog;
     char *compress_ext;
@@ -55,6 +67,9 @@ struct logInfo {
     gid_t createGid;
     uid_t suUid;			/* switch user to this uid and group to this gid */
     gid_t suGid;
+    mode_t olddirMode;
+    uid_t olddirUid;
+    uid_t olddirGid;
     /* these are at the end so they end up nil */
     const char **compress_options_list;
     int compress_options_count;

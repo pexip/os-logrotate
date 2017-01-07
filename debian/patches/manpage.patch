@@ -4,22 +4,11 @@ Patches from: J S Bygott <jsb_no_spm@jsbygott.fsnet.co.uk>
 General fixes to manpages.
 
 
-Index: logrotate-3.8.5/logrotate.8
+Index: logrotate.git/logrotate.8
 ===================================================================
---- logrotate-3.8.5.orig/logrotate.8	2013-06-26 22:06:31.660308056 +0100
-+++ logrotate-3.8.5/logrotate.8	2013-06-26 22:14:03.333646535 +0100
-@@ -11,8 +11,8 @@
- weekly, monthly, or when it grows too large.
- .P
- Normally, \fBlogrotate\fR is run as a daily cron job.  It will not modify
--a log multiple times in one day unless the criterion for that log is
--based on the log's size and \fBlogrotate\fR is being run multiple times
-+a log more than once in one day unless the criterion for that log is
-+based on the log's size and \fBlogrotate\fR is being run more than once
- each day, or unless the \fB\-f\fR or \fB\-\-force\fR option is used.
- .P
- Any number of config files may be given on the command line. Later config
-@@ -52,22 +52,22 @@
+--- logrotate.git.orig/logrotate.8	2016-12-29 02:36:21.419159138 +0100
++++ logrotate.git/logrotate.8	2016-12-29 02:36:21.416159140 +0100
+@@ -58,21 +58,21 @@
  Tells \fBlogrotate\fR which command to use when mailing logs. This
  command should accept two arguments: 1) the subject of the message, and
  2) the recipient. The command must then read a message on standard input
@@ -40,46 +29,21 @@ Index: logrotate-3.8.5/logrotate.8
  
  .TP
 -+\fB\-v\fR, \fB\-\-verbose\fR
--Turns on verbose mode.
 +\fB\-v\fR, \fB\-\-verbose\fR
-+Turns on verbose mode, ie. display messages during rotation.
+ Turns on verbose mode, ie. display messages during rotation.
  
  .SH CONFIGURATION FILE
- 
-@@ -119,9 +119,9 @@
- The first few lines set global options; in the example, logs are
- compressed after they are rotated.  Note that comments may appear
+@@ -127,9 +127,6 @@
  anywhere in the config file as long as the first non-whitespace
--character on the line is a #.
-+character on the line is a \fB#\fR.
+ character on the line is a \fB#\fR.
  
--The next section of the config files defined how to handle the log file
-+The next section of the config file defines how to handle the log file
+-Values are separated from directives by whitespace and/or an optional =.
+-Numbers must be specified in a format understood by \fBstrtoul(3)\fR.
+-
+ The next section of the config file defines how to handle the log file
  \fI/var/log/messages\fR. The log will go through five weekly rotations before
  being removed. After the log file has been rotated (but before the old
- version of the log has been compressed), the command 
-@@ -129,14 +129,15 @@
- 
- The next section defines the parameters for both
- \fI/var/log/httpd/access.log\fR and \fI/var/log/httpd/error.log\fR.
--They are rotated whenever it grows over 100k in size, and the old logs
-+Each is rotated whenever it grows over 100k in size, and the old logs
- files are mailed (uncompressed) to www@my.org after going through 5
- rotations, rather than being removed. The \fBsharedscripts\fR means that
- the \fBpostrotate\fR script will only be run once (after the old logs have 
--been compressed), not once for each log which is rotated. Note that the double
--quotes around the first filename at the beginning of this section allows
--logrotate to rotate logs with spaces in the name. Normal shell quoting rules
--apply, with ', ", and \\ characters supported.
-+been compressed), not once for each log which is rotated.
-+Note that log file names may be enclosed in
-+quotes (and that quotes are required if the name contains spaces).
-+Normal shell quoting rules apply, with \fB'\fR, \fB"\fR, and \fB\\\fR
-+characters supported.
- 
- The next section defines the parameters for all of the files in
- \fI/var/log/news\fR. Each file is rotated on a monthly basis.  This is
-@@ -151,6 +152,10 @@
+@@ -161,6 +158,10 @@
  rotate all files, including previously rotated ones.  A way around this
  is to use the \fBolddir\fR directive or a more exact wildcard (such as *.log).
  
@@ -90,80 +54,28 @@ Index: logrotate-3.8.5/logrotate.8
  Here is more information on the directives which may be included in
  a \fBlogrotate\fR configuration file:
  
-@@ -162,12 +167,12 @@
- .TP
- \fBcompresscmd\fR
- Specifies which command to use to compress log files.  The default is
--\fBgzip\fR.  See also \fBcompress\fR.
-+\fBgzip\fR(1).  See also \fBcompress\fR.
- 
- .TP
- \fBuncompresscmd\fR
- Specifies which command to use to uncompress log files.  The default is
--\fBgunzip\fR.
-+\fBgunzip\fR(1).
- 
- .TP
- \fBcompressext\fR
-@@ -194,7 +199,7 @@
- 
- .TP
- \fBcopytruncate\fR
--Truncate the original log file in place after creating a copy,
-+Truncate the original log file to zero size in place after creating a copy,
- instead of moving the old log file and optionally creating a new one.
- It can be used when some program cannot be told to close its logfile
- and thus might continue writing (appending) to the previous log file forever.
-@@ -254,7 +259,7 @@
+@@ -276,7 +277,7 @@
  .TP
  \fBextension \fIext\fR
  Log files with \fIext\fR extension can keep it after the rotation. 
--If compression  is  used,  the compression extension (normally \fB.gz\fR) 
+-If compression  is  used,  the compression extension (normally \fI.gz\fR) 
 +If compression  is  used,  the compression extension (normally \fI.gz\fR)
  appears after \fIext\fR. For example you have a logfile named mylog.foo 
  and want to rotate it to mylog.1.foo.gz instead of mylog.foo.1.gz.
  
-@@ -281,7 +286,7 @@
- 
- .TP
- \fBmail \fIaddress\fR
--When a log is rotated out-of-existence, it is mailed to \fIaddress\fR. If
-+When a log is rotated out of existence, it is mailed to \fIaddress\fR. If
- no mail should be generated by a particular log, the \fBnomail\fR directive
- may be used.
- 
-@@ -361,7 +366,7 @@
- 
- .TP
- \fBnomail\fR
--Don't mail old log files to any address.
-+Do not mail old log files to any address.
- 
- .TP
- \fBnomissingok\fR
-@@ -369,7 +374,7 @@
- 
- .TP
- \fBnoolddir\fR
--Logs are rotated in the same directory the log normally resides in (this 
-+Logs are rotated in the directory they normally reside in (this 
- overrides the \fBolddir\fR option).
- 
- .TP
-@@ -532,12 +537,15 @@
+@@ -591,7 +592,8 @@
  .SH SEE ALSO
  .BR gzip (1)
  
--<http://fedorahosted.org/logrotate/>
+-<https://github.com/logrotate/logrotate>
 +.SH NOTES
 +The \fBkillall\fR(1) program in Debian is found in the \fIpsmisc\fR package.
  
  .SH AUTHORS
  .nf
- Erik Troan, Preston Brown, Jan Kaluza.
+@@ -599,4 +601,5 @@
  
- <logrotate-owner@fedoraproject.org>
-+<http://fedorahosted.org/logrotate/>
+ <https://github.com/logrotate/logrotate>
  
 +Corrections and changes for Debian by Paul Martin <pm@debian.org>
  .fi
