@@ -1,0 +1,19 @@
+Index: logrotate-3.8.6/logrotate.c
+===================================================================
+--- logrotate-3.8.6.orig/logrotate.c	2013-09-03 21:55:08.153596707 +0100
++++ logrotate-3.8.6/logrotate.c	2013-09-03 22:10:40.012851906 +0100
+@@ -2114,12 +2114,14 @@
+ 		return 1;
+ 	}
+ 
++	memset(&st->lastRotated, 0, sizeof(st->lastRotated));
+ 	st->lastRotated.tm_year = year;
+ 	st->lastRotated.tm_mon = month;
+ 	st->lastRotated.tm_mday = day;
+ 	st->lastRotated.tm_hour = hour;
+ 	st->lastRotated.tm_min = minute;
+ 	st->lastRotated.tm_sec = second;
++	st->lastRotated.tm_isdst = -1;
+ 
+ 	/* fill in the rest of the st->lastRotated fields */
+ 	lr_time = mktime(&st->lastRotated);

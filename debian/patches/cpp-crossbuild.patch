@@ -6,16 +6,16 @@ dpkg-cross sets CPP variable, and compilation failures, because
 the executable 'cpp' does not accept multiple input files.
 
 
-Index: logrotate-3.7.7/Makefile
+Index: logrotate-3.8.5/Makefile
 ===================================================================
---- logrotate-3.7.7.orig/Makefile	2008-05-19 11:25:54.000000000 +0100
-+++ logrotate-3.7.7/Makefile	2008-11-07 01:36:39.543554279 +0000
-@@ -89,7 +89,7 @@
- 	rm -f $(OBJS) $(PROG) core* .depend
+--- logrotate-3.8.5.orig/Makefile	2013-06-26 22:15:57.859971822 +0100
++++ logrotate-3.8.5/Makefile	2013-06-26 22:15:57.855971737 +0100
+@@ -123,7 +123,7 @@
+ 	rm -f ./test/test.ACL ./test/test.SELINUX ./test/error.log
  
  depend:
 -	$(CPP) $(CFLAGS) -M $(SOURCES) > .depend
 +	$(CC) -E $(CFLAGS) -M $(SOURCES) > .depend
  
- .PHONY : test
- test: $(TARGET)
+ # pretest create the file ./test/test.ACL with
+ # 0 or 1 according to the WITH_ACL=yes presence.

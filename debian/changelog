@@ -1,51 +1,259 @@
-logrotate (3.7.8-6ubuntu5pexip1) pexip; urgency=low
+logrotate (3.8.7-1pexip1) pexip; urgency=low
 
-  * Prepare Pexip packaging
+  * Migrate to Jessie
 
- -- John-Mark Bell <jmb@pexip.com>  Tue, 24 Dec 2013 23:33:36 +0000
+ -- John-Mark Bell <jmb@pexip.com>  Wed, 22 Mar 2017 16:23:12 +0000
 
-logrotate (3.7.8-6ubuntu5) oneiric; urgency=low
+logrotate (3.8.7-1) unstable; urgency=low
 
-  * cron.daily: ensure that the status file exists to avoid error messages
-    in cron mail. LP: #785670
+  * New patch:
+    - man-su-explanation-729315.patch: Explain how "su" may conflict with
+      "create". (Closes: #729315)
+  * New upstream release
+    - Fix to forcing size-based rotations. (Closes: #714910)
+  * Bump standards version to 3.9.5. (No changes needed.)
 
- -- Reinhard Tartler <siretart@tauware.de>  Tue, 04 Oct 2011 18:23:34 +0200
+ -- Paul Martin <pm@debian.org>  Fri, 17 Jan 2014 09:46:01 +0000
 
-logrotate (3.7.8-6ubuntu4) oneiric; urgency=low
+logrotate (3.8.6-1) unstable; urgency=low
 
-  * SECURITY UPDATE: arbitrary code execution via shell metacharacters in
-    log filename
-    - debian/patches/CVE-2011-1154.patch: improve shred logic in
-      logrotate.c.
-    - CVE-2011-1154
-  * SECURITY UPDATE: denial of service via invalid characters in log
-    filename
-    - debian/patches/CVE-2011-1155.patch: properly escape filenames in
-      logrotate.c.
-    - CVE-2011-1155
+  * New upstream release
+    - logrotate crashes with sharedscripts when no logs are rotated.
+    - Fix potential buffer overflow in parsing config.
+  * New patch:
+    - mktime-718332.patch: Fix incorrectly initialized struct tm causing
+      extra rotations. (Closes: #718332)
 
- -- Marc Deslauriers <marc.deslauriers@ubuntu.com>  Fri, 17 Jun 2011 13:36:27 -0400
+ -- Paul Martin <pm@debian.org>  Tue, 03 Sep 2013 21:34:00 +0100
 
-logrotate (3.7.8-6ubuntu3) natty; urgency=low
+logrotate (3.8.5-1) unstable; urgency=low
 
-  * cron.daily: Fixing a shell redirection error
+  * New upstream release
+    + Check for both possible orders of script output in tests.
+      (Closes: #707526)
+    + If logrotate state file is corrupted, fail with error.
+    + Make logrotate state file creation atomic. (Closes: #707526)
+    + Add fsync during log copytruncate and gzip+unlink.
+    + Allow 'hourly' rotation.
+    + Do not try to parse big (16+ MB) config files.
+  * Debian patches merged upstream:
+    - dst.patch
+    - man-startcount.patch
+    - man-compressext-576362.patch
+    - asprintf-fixes.patch
+    - makefile-test-cleanup.patch
+    - manpage-hyphens.patch
+    - acl-nosys-706050.patch
+    - size-longlong-706460.patch
+    - timetraveller-704950.patch
 
- -- Ahmed Kamal <kim0@ubuntu.com>  Sun, 13 Mar 2011 02:21:08 +0200
+ -- Paul Martin <pm@debian.org>  Wed, 26 Jun 2013 22:26:23 +0100
 
-logrotate (3.7.8-6ubuntu2) natty; urgency=low
+logrotate (3.8.3-5) unstable; urgency=low
 
-  * cron.daily: Added ability to clean non existent log files from 
-    logrotate status file (LP: #730504)
+  * New patches:
+    + timetraveller-704950.patch: don't complain if the local time has changed
+      such that the last rotation was in the "future" if the change is less
+      than 25 hours. This allows for timezone shifts for travellers.
+      (Closes: #704950) Please note that logrotate should not be relied upon
+      if you are using a TARDIS.
+    + size-longlong-706460.patch: Parse the number in the size/minsize/maxsize
+      as an unsigned long long instead of just an unsigned long. For those who
+      like to write their multigigabyte values in bytes. (Closes: #706460)
+  * Update standards version to 3.9.4. (No changes needed.)
 
- -- Ahmed Kamal <kim0@ubuntu.com>  Sat, 12 Mar 2011 14:58:38 +0200
+ -- Paul Martin <pm@debian.org>  Tue, 30 Apr 2013 18:44:41 +0100
 
-logrotate (3.7.8-6ubuntu1) maverick; urgency=low
+logrotate (3.8.3-4) experimental; urgency=low
 
-  * Merge from debian unstable (LP: #554823), remaining changes:
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used
-      on request, and we don'c configure an MTA by default.
+  * Accommodate cross-building and "nocheck". (Closes: #694835)
+  * Accommodate ext3 filesystem returning wrong error if ACL is disabled.
+    (Closes: #706050)
+  * Replace patches/acl-tests.patch with the ones from upstream SVN, as
+    patches/rh391-acl-test.patch, rh394-acl-tests.patch, rh397-acl-tests.patch
+  * Replace patches/configparse.patch with upstream's rh401-tabooextloop.patch
+  * Imported from upstream SVN:
+    + patch/rh390-version.patch: Add --version option.
+    + patch/rh392-skip-errors.patch: Fixed bug which prevented skipping
+      particular log file config if the config contains errors
+    + patch/rh393-kilo.patch: Allow both 'k' and 'K' in size.
+    + patch/rh395-action-error-skip.patch: Fixed skipping of configs 
+      containing firstaction/lastaction in case of error before these 
+      directives
+    + patch/rh396-changes.patch: update to CHANGES file 
+    + patch/rh398-preremove.patch: new option "preremove"
+    + patch/rh399-leakedfds.patch: Close leaked fds
+    + patch/rh400-install.patch: Add INSTALL file
+    + patch/rh402-selinux-compress-context.patch: set SELinux context before
+      compressLogFile calls to create compressed log files with proper context
+    + patch/rh403-prepostrotate.patch: Call prerotate/postrotate script only
+      for really rotated files (Closes: #652971)
+    - patches/sharedscripts-519432.patch: removed
 
- -- Lorenzo De Liso <blackz@ubuntu.com>  Wed, 14 Jul 2010 19:34:54 +0200
+ -- Paul Martin <pm@debian.org>  Wed, 24 Apr 2013 14:29:30 +0100
+
+logrotate (3.8.3-3) unstable; urgency=low
+
+  * Remove acl from Build-Depends. Buildd servers don't support ACLs
+    on their filing systems.
+  * patches/acl-tests.patch.: disable ACL tests if setfacl is not present
+    or doesn't work.
+
+ -- Paul Martin <pm@debian.org>  Tue, 16 Oct 2012 15:12:55 +0100
+
+logrotate (3.8.3-2) unstable; urgency=low
+
+  * Add acl to Build-Depends on Linux as the self-tests require it.
+  * We don't need to Build-Depend on quilt any more, as package source
+    is in "3.0 (quilt)" format.
+  * postrm and preinst: use separate "set -e" rather than use "-e" in
+    "#!" line.
+  * patches/manpage-hyphens.patch: Fix lintian warning
+    "hyphen-used-as-minus-sign".
+
+ -- Paul Martin <pm@debian.org>  Tue, 16 Oct 2012 13:36:27 +0100
+
+logrotate (3.8.3-1) unstable; urgency=low
+
+  * New upstream release. Major changes:
+    + Fixed setting "size" bigger than 4GB on 32bit architectures.
+    + Do not overwrite mode set by "create" option when using ACL.
+    + Mode argument in "create" directive can be omitted.
+  * debian/rules: allow "clean" to clean up test directory.
+  * debian/rules: Build with ACLs and build-depend on libacl1-dev
+
+ -- Paul Martin <pm@debian.org>  Mon, 15 Oct 2012 14:51:14 +0100
+
+logrotate (3.8.2-1) unstable; urgency=low
+
+  * New upstream release. Major changes:
+    + More regression tests.
+    + Fixed mail sending for 'mailfirst', 'dateext' and 'delaycompress'
+      combination.
+    + Check if the log is not symlink before rotation.
+    + Do not call fchown in createOutputFile if newly created file already
+      has proper owner. This fixes rotation of files stored on NFS where we
+      can't change owner.
+  * Patches:
+    - svn*.patch removed as we're using upstream release.
+      svn-r360.patch was reverted upstream. (Breathes sigh of relief.)
+    - dateext-504079.patch removed. Applied upstream.
+    - copyloginfo-512152.patch removed. Applied upstream.
+
+ -- Paul Martin <pm@debian.org>  Thu, 16 Aug 2012 12:46:06 +0100
+
+logrotate (3.8.1-5) experimental; urgency=low
+
+  * Add Homepage and Vcs-Svn to debian/control. (Closes: #675313)
+  * Cherry pick upstream svn patches:
+    + svn-r343.patch: Add strlen() sanity check to mbrtowc() call.
+    + svn-r344.patch: Show error and ignore config if '{' is not present 
+      after log files declaration.
+    + svn-r346.patch: Support whitespaces in compressoptions directive
+      (Closes: #159797)
+    + svn-r348.patch: Fix typo in manpage. (overwite -> overwrite)
+    + svn-r{349,350,351,352,353,368}.patch: Extra test cases.
+    + svn-r354.patch: Fix ACL bug caused by bad merge.
+    + svn-r355.patch: Typo in maxsize debug message (was reporting minsize)
+    + svn-r356.patch: Fix potential bad free in ACL code.
+    + svn-r357.patch: Support for tilde expansion in config files.
+    + svn-r358.patch: Add O_NOFOLLOW when opening files as safeguard against
+      symlink tricks.
+    + svn-r359.patch: don't run external programs with uid != euid.
+      (Slightly modified from upstream to use the runScriptMultiple fix.)
+    + svn-r360.patch: Don't accept service owned log directories anymore.
+      (This is the reason why this is going in "experimental" for now.)
+    + svn-r361.patch: Fix to one of the tests.
+    + svn-r362.patch: Run shred unprivileged.
+    + svn-r363.patch: Parser: check for missing brackets.
+    + svn-r364.patch: Return failure when refusing to rotate a log due to
+      wrong permissions
+  * Amended patches:
+    + test-cleanup.patch: Clean up after regression tests.
+
+ -- Paul Martin <pm@debian.org>  Thu, 31 May 2012 09:54:20 +0100
+
+logrotate (3.8.1-4) unstable; urgency=low
+
+  * Switch to dh type debian/rules.
+  * Patch:
+    + test-cleanup.patch: Clean up after regression tests.
+
+ -- Paul Martin <pm@debian.org>  Thu, 17 May 2012 13:58:57 +0100
+
+logrotate (3.8.1-3) unstable; urgency=low
+
+  * Enabled hardened build flags.
+  * Patch:
+    + asprintf-fixes.patch: Fix asprintf() warnings and allow build with
+      hardened build flags.
+  * Update standards version to 3.9.3.
+
+ -- Paul Martin <pm@debian.org>  Thu, 17 May 2012 00:36:48 +0100
+
+logrotate (3.8.1-2) unstable; urgency=low
+
+  * Removed dependancy on fcron as it is no longer in the repository.
+
+ -- Paul Martin <pm@debian.org>  Wed, 21 Dec 2011 11:02:53 +0000
+
+logrotate (3.8.1-1) unstable; urgency=low
+
+  * New upstream release
+    + Changes in 3.8.0 fix build problems on non-POSIX architectures 
+      (Closes: #632501)
+    + New config options: dateyesterday, maxsize, su. (See manpage.)
+      (maxsize Closes: #635184)
+  * New patch:
+    + man-compressext-576362.patch. Correct manpage about compressext,
+      compressoptions behaviour. (Closes: #576362)
+  * debian/logrotate.README.Debian: update now that rsyslog is default
+    for new installs. (Closes: #649598)
+  * Incidentally, rsyslog is now default syslog, and that doesn't use 
+    savelog but makes use of logrotate. (Closes: #379843)
+  * Install logrotate.conf.5 (a redirect to logrotate.8) (Closes: #182261)
+  * debian/control: depend on cron-daemon as an alternative to cron.
+    (Closes: #334137)
+  * lintian warning fix: move debian/logrotate.copyright to debian/copyright
+  * debian/control: add Breaks: postgresql-common (<= 126) as its config 
+    file requires an "su". Postgres maintainer is aware and awaits this
+    upload.
+  * Upload to unstable. (Closes: #648025)
+
+ -- Paul Martin <pm@debian.org>  Mon, 05 Dec 2011 17:58:16 +0000
+
+logrotate (3.8.0-1) experimental; urgency=low
+
+  * New upstream release (Closes: #633529)
+    + Fixes for CVE-2011-1098, CVE-2011-1154, and CVE-2011-1155
+      (Closes: #639302)
+    + dateformat sorting noted in manpage (Closes: #580054)
+  * Changed debian/control to use [linux-any] in Build-Depends.
+    (Closes: #634704)
+  * Removed patches:
+    + create-388608.patch: Upstream has fixed this.
+    + nofollow.patch: Upstream has fixed this.
+    + security-388608.patch: Upstream has fixed this.
+    + FTBFS-hurd-613342.patch: Adopted upstream. (Closes: #613342)
+
+ -- Paul Martin <pm@debian.org>  Sun, 28 Aug 2011 19:11:09 +0100
+
+logrotate (3.7.9-1) experimental; urgency=low
+
+  * New upstream release
+  * New patch:
+    + FTBFS-hurd-613342.patch. Half of a fix to #613342. Unfortunately
+      the rest of the supplied patch leaks memory badly.
+  * Removed patches:
+    - deb-taboos.patch (applied upstream)
+    - ucf-taboos.patch (applied upstream)
+    - compressutime.patch (applied upstream)
+    - rh-toolarge.patch (upstream does things a different way)
+    - rh-curdir2.patch (applied upstream) 
+    - parser571033.patch (applied upstream) 
+  * Added build-arch/build-indep targets to debian/rules.
+  * Update standards version to 3.9.2 (no changes).
+ -- Paul Martin <pm@debian.org>  Wed, 22 Jun 2011 15:51:46 +0100
 
 logrotate (3.7.8-6) unstable; urgency=low
 
@@ -65,21 +273,6 @@ logrotate (3.7.8-5) unstable; urgency=low
   * Update standards version to 3.8.4 (no changes).
 
  -- Paul Martin <pm@debian.org>  Sat, 20 Mar 2010 19:37:26 +0000
-
-logrotate (3.7.8-4ubuntu2) lucid; urgency=low
-
-  * rebuild rest of main for armel armv7/thumb2 optimization;
-    UbuntuSpec:mobile-lucid-arm-gcc-v7-thumb2
-
- -- Alexander Sack <asac@ubuntu.com>  Sun, 07 Mar 2010 00:56:16 +0100
-
-logrotate (3.7.8-4ubuntu1) karmic; urgency=low
-
-  * Merge from debian unstable, remaining changes: LP: #414347
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used
-      on request, and we don'c configure an MTA by default.
-
- -- Bhavani Shankar <right2bhavi@gmail.com>  Sun, 16 Aug 2009 12:40:24 +0530
 
 logrotate (3.7.8-4) unstable; urgency=high
 
@@ -138,24 +331,6 @@ logrotate (3.7.8-1) experimental; urgency=low
 
  -- Paul Martin <pm@debian.org>  Tue, 04 Aug 2009 15:18:18 +0100
 
-logrotate (3.7.7-5ubuntu1) karmic; urgency=low
-
-  * Merge from debian unstable, remaining changes: LP: #410660
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used
-      on request, and we don'c configure an MTA by default.
-
- -- Bhavani Shankar <right2bhavi@gmail.com>  Sat, 08 Aug 2009 17:00:10 +0530
-
-logrotate (3.7.7-5) unstable; urgency=high
-
-  * Backport patch from 3.7.8-3 (in experimental):
-    + nofollow.patch: If a logfile is a symlink, it may be read when 
-      being compressed, being copied (copy, copytruncate) or mailed. 
-      Secure data (eg. password files) may be exposed. Thanks to
-      Florian Zumbiehl for getting me thinking about this one.
-
- -- Paul Martin <pm@debian.org>  Thu, 06 Aug 2009 16:41:26 +0100
-
 logrotate (3.7.7-4) unstable; urgency=low
 
   * Update location of upstream in debian/copyright.
@@ -168,28 +343,6 @@ logrotate (3.7.7-3) unstable; urgency=low
 
  -- Paul Martin <pm@debian.org>  Sun, 18 Jan 2009 00:48:49 +0000
 
-logrotate (3.7.7-3ubuntu1) jaunty; urgency=low
-
-  * Merge from debian unstable, remaining changes:
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used
-      on request, and we don'c configure an MTA by default.
-
- -- Chuck Short <zulcss@ubuntu.com>  Sun, 18 Jan 2009 05:51:34 +0000
-
-logrotate (3.7.7-3) unstable; urgency=low
-
-  * Fix sharedcycles. (Closes: #512152)
-
- -- Paul Martin <pm@debian.org>  Sun, 18 Jan 2009 00:48:49 +0000
-
-logrotate (3.7.7-2ubuntu1) jaunty; urgency=low
-
-  * Merge from debian unstable, remaining changes: LP: #313461
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used on
-      request, and we don't configure an MTA by default.
-
- -- Bhavani Shankar <right2bhavi@gmail.com>  Sat, 03 Jan 2009 19:08:07 +0530
-
 logrotate (3.7.7-2) unstable; urgency=low
 
   * Upload to unstable.
@@ -200,14 +353,6 @@ logrotate (3.7.7-2) unstable; urgency=low
       (Closes: #435086)
 
  -- Paul Martin <pm@debian.org>  Wed, 17 Dec 2008 13:12:27 +0000
-
-logrotate (3.7.7-1ubuntu1) jaunty; urgency=low
-
-  * Merge with Debian experimental (LP: #64964). Remaining Ubuntu changes:
-    - debian/control: Drop mailx to Suggests for Ubuntu; it's only used on
-      request, and we don't configure an MTA by default.
-
- -- Martin Pitt <martin.pitt@ubuntu.com>  Fri, 07 Nov 2008 14:57:09 +0100
 
 logrotate (3.7.7-1) experimental; urgency=low
 

@@ -1,10 +1,10 @@
-Index: logrotate-3.7.8/logrotate.c
+Index: logrotate-3.8.5/logrotate.c
 ===================================================================
---- logrotate-3.7.8.orig/logrotate.c	2009-08-04 14:28:25.134021083 +0100
-+++ logrotate-3.7.8/logrotate.c	2009-08-04 14:30:27.190113950 +0100
-@@ -244,8 +244,12 @@
-     if (fchown(fd, sb->st_uid, sb->st_gid)) {
- 	message(MESS_ERROR, "error setting owner of %s: %s\n",
+--- logrotate-3.8.5.orig/logrotate.c	2013-06-26 22:17:20.821656206 +0100
++++ logrotate-3.8.5/logrotate.c	2013-06-26 22:17:20.817656132 +0100
+@@ -314,8 +314,12 @@
+     if (fchmod(fd, (S_IRUSR | S_IWUSR) & sb->st_mode)) {
+ 	message(MESS_ERROR, "error setting mode of %s: %s\n",
  		fileName, strerror(errno));
 -	close(fd);
 -	return -1;
@@ -15,5 +15,5 @@ Index: logrotate-3.7.8/logrotate.c
 +		return -1;
 +	}
      }
-     if (fchmod(fd, sb->st_mode)) {
- 	message(MESS_ERROR, "error setting mode of %s: %s\n",
+ 
+ 	if (fstat(fd, &sb_create)) {

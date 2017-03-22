@@ -1,31 +1,9 @@
 #!/usr/bin/make -f
-# Sample debian/rules that uses debhelper.
-# GNU copyright 1997 to 1999 by Joey Hess.
-
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-CFLAGS = -Wall -g
-INSTALL = install
-INSTALL_FILE    = $(INSTALL) -p    -o root -g root  -m  644
-INSTALL_PROGRAM = $(INSTALL) -p    -o root -g root  -m  755
-INSTALL_SCRIPT  = $(INSTALL) -p    -o root -g root  -m  755
-INSTALL_DIR     = $(INSTALL) -p -d -o root -g root  -m  755
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-CFLAGS += -O0
-else
-CFLAGS += -O2
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-INSTALL_PROGRAM += -s
-endif
-
 export DEB_HOST_ARCH_OS := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS \
-	2>/dev/null || true)
+        2>/dev/null || true)
 
 export DEB_HOST_GNU_SYSTEM := $(shell dpkg-architecture \
-	-qDEB_HOST_GNU_SYSTEM 2>/dev/null || true)
+        -qDEB_HOST_GNU_SYSTEM 2>/dev/null || true)
 
 ifeq ($(DEB_HOST_ARCH_OS),)
   DEB_HOST_ARCH_OS := $(subst -gnu,,$(DEB_HOST_GNU_SYSTEM))
@@ -34,106 +12,37 @@ ifeq ($(DEB_HOST_ARCH_OS),)
   endif
 endif
 
-configure: configure-stamp
-configure-stamp: patch
-	dh_testdir
-	# Add here commands to configure the package.
-
-	touch configure-stamp
-
-build: configure-stamp build-stamp
-build-stamp: patch
-	dh_testdir
-
-ifeq ($(DEB_HOST_ARCH_OS),linux)
-	$(MAKE) RPM_OPT_FLAGS="$(CFLAGS)" WITH_SELINUX="yes"
+DEB_BUILD_GNU_TYPE := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+DEB_HOST_GNU_TYPE := $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+  CROSS :=
 else
-	$(MAKE) RPM_OPT_FLAGS="$(CFLAGS)"
+  CROSS := CC=$(DEB_HOST_GNU_TYPE)-gcc
 endif
 
-	touch build-stamp
 
-clean: clean-patched unpatch
-clean-patched:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
+%:
+	dh $@
 
-	[ ! -f Makefile ] || $(MAKE) clean
-	rm -f .depend
+override_dh_auto_build:
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+	$(MAKE) RPM_OPT_FLAGS="$(CFLAGS)" WITH_SELINUX="yes" WITH_ACL="yes" $(CROSS)
+else
+	$(MAKE) RPM_OPT_FLAGS="$(CFLAGS)" $(CROSS)
+endif
 
-	dh_clean logrotate.selinux
+override_dh_auto_install:
 
-install: build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
+override_dh_auto_clean:
+	$(MAKE) clean
+	cd test ; rm -f $$(ls | egrep '^test-config.[0-9]+$$')
+	cd test ; rm -f test*.log* anothertest*.log* state test-config.
+	cd test ; rm -f scriptout mail-out compress-args different*.log*
 
-	# Add here commands to install the package into debian/logrotate.
-	$(INSTALL_PROGRAM) $(CURDIR)/logrotate \
-	  $(CURDIR)/debian/logrotate/usr/sbin/
-	#$(INSTALL_PROGRAM) $(CURDIR)/logrotate.selinux \
-	#  $(CURDIR)/debian/logrotate-selinux/usr/sbin/logrotate
-
-	$(INSTALL_FILE) $(CURDIR)/debian/logrotate.conf \
-	  $(CURDIR)/debian/logrotate/etc/logrotate.conf
-	#$(INSTALL_FILE) $(CURDIR)/debian/logrotate.conf \
-	#  $(CURDIR)/debian/logrotate-selinux/etc/logrotate.conf
-
-	# reportbug script
-	$(INSTALL_SCRIPT) $(CURDIR)/debian/logrotate.bug \
-	  $(CURDIR)/debian/logrotate/usr/share/bug/logrotate/script
-	#$(INSTALL_SCRIPT) $(CURDIR)/debian/logrotate.bug \
-	#  $(CURDIR)/debian/logrotate-selinux/usr/share/bug/logrotate/script
-
-
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-#	dh_installdebconf	
-	dh_installdocs
-	dh_installexamples
-#	dh_installmenu
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_installinit
-	dh_installcron
-	dh_installman logrotate.8
-#	dh_installinfo
-#	dh_undocumented
-	dh_installchangelogs CHANGES
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-#	dh_makeshlibs
-	dh_installdeb
-#	dh_perl
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-
-#patch: patch-stamp
-#patch-stamp:
-#	dpatch apply-all
-#	touch patch-stamp
-#	# dpatch call-all -a=pkg-info >patch-stamp
-#
-#unpatch:
-#	dpatch deapply-all
-#	rm -rf patch-stamp debian/patched
-
-.PHONY: build clean binary-indep binary-arch binary install configure \
- patch unpatch clean-patched
+# ACL tests will fail if we're not building with ACL
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+  ifeq ($(DEB_HOST_ARCH_OS),linux)
+	cd test ; ./test
+  endif
+endif
