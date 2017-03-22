@@ -6,7 +6,7 @@ XSBC-Pexip-Original-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ub
 XSBC-Original-Maintainer: Paul Martin <pm@debian.org>
 Build-Depends: libpopt-dev, debhelper (>= 7), quilt, libselinux1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
 Standards-Version: 3.8.4
-XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
 
 Package: logrotate
 Architecture: any
