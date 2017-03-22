@@ -1,6 +1,6 @@
 Summary: Rotates, compresses, removes and mails system log files
 Name: logrotate
-Version: 3.7.8
+Version: 3.8.7
 Release: 1
 License: GPL+
 Group: System Environment/Base
@@ -45,12 +45,40 @@ rm -rf $RPM_BUILD_ROOT
 %doc CHANGES COPYING
 %attr(0755, root, root) %{_sbindir}/logrotate
 %attr(0644, root, root) %{_mandir}/man8/logrotate.8*
+%attr(0644, root, root) %{_mandir}/man5/logrotate.conf.5*
 %attr(0755, root, root) %{_sysconfdir}/cron.daily/logrotate
 %attr(0644, root, root) %config(noreplace) %{_sysconfdir}/logrotate.conf
 %attr(0755, root, root) %dir %{_sysconfdir}/logrotate.d
 %attr(0644, root, root) %verify(not size md5 mtime) %config(noreplace) %{_localstatedir}/lib/logrotate.status
 
 %changelog
+* Thu Oct 10 2013 Jan Kaluza <jkaluza@redhat.com> 3.8.7-1
+- new upstream version
+
+* Wed Jul 31 2013 Jan Kaluza <jkaluza@redhat.com> 3.8.6-1
+- new upstream version
+
+* Mon Jun 10 2013 Jan Kaluza <jkaluza@redhat.com> 3.8.5-1
+- new upstream version
+
+* Tue Apr 30 2013 Jan Kaluza <jkaluza@redhat.com> 3.8.4-1
+- new upstream version
+
+* Thu Oct 04 2012 Jan Kaluza <jkaluza@redhat.com> 3.8.3-1
+- new upstream version
+
+* Thu Jul 19 2012 Jan Kaluza <jkaluza@redhat.com> 3.8.2-1
+- new upstream version
+
+* Wed Aug 31 2011 Jan Kaluza <jkaluza@redhat.com> 3.8.1-1
+- new upstream version
+
+* Tue Jun 21 2011 Jan Kaluza <jkaluza@redhat.com> 3.8.0-1
+- new upstream version
+
+* Mon Jun 28 2010 Jan Kaluza <jkaluza@redhat.com> 3.7.9-1
+- new upstream version
+
 * Wed Jan 28 2009 Tomas Smetana <tsmetana@redhat.com> 3.7.8-1
 - new upstream version
 
