@@ -1,3 +1,9 @@
+logrotate (3.8.7-1+b1pexip1) pexip; urgency=low
+
+  * Bump version
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 09 May 2017 21:31:04 +0100
+
 logrotate (3.8.7-1pexip1) pexip; urgency=low
 
   * Migrate to Jessie
