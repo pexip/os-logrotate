@@ -1,0 +1,59 @@
+diff --git a/logrotate.c b/logrotate.c
+index 174a26b..864e571 100644
+--- a/logrotate.c
++++ b/logrotate.c
+@@ -2215,7 +2215,7 @@ int main(int argc, const char **argv)
+ 		return 1;
+ 
+ 	if (readState(stateFile))
+-		exit(1);
++		rc = 1;
+ 
+ 	message(MESS_DEBUG, "\nHandling %d logs\n", numLogs);
+ 
+diff --git a/test/test b/test/test
+index b91ba5a..36dcc8e 100755
+--- a/test/test
++++ b/test/test
+@@ -1138,14 +1138,15 @@ EOF
+ cleanup 46
+ 
+ # ------------------------------- Test 46 ------------------------------------
+-# the state file is truncated and obviously corrupt, so no rotation should
+-# happen
++# the state file is truncated and obviously corrupt
+ preptest test.log 46 1
++echo number2 > test2.log
+ 
+ cat > state << EOF
+ logrotate state -- version 1
+ "$PWD/test.log" 2000-1-1
+ "$PWD/test2.l
++"$PWD/test2.log" 2000-1-1
+ EOF
+ 
+ DATESTRING=$(/bin/date +%Y%m%d)
+@@ -1160,7 +1161,9 @@ fi
+ rm -f error.log
+ 
+ checkoutput <<EOF
+-test.log 0 zero
++test.log 0
++test.log.1 0 zero
++test2.log 0 number2
+ EOF
+ 
+ 
+diff --git a/test/test-config.46.in b/test/test-config.46.in
+index 154fb56..b89f127 100644
+--- a/test/test-config.46.in
++++ b/test/test-config.46.in
+@@ -1,7 +1,6 @@
+ create
+ 
+-&DIR&/test.log {
++&DIR&/test*.log {
+ 	daily
+ 	rotate 999
+-	dateext
+ }

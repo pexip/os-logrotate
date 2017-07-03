@@ -1,3 +1,10 @@
+logrotate (3.8.7-1+b1pexip2) pexip; urgency=low
+
+  * debian/patches/state-recover.patch: recover from corrupt
+    state file.
+
+ -- John-Mark Bell <jmb@pexip.com>  Mon, 03 Jul 2017 19:12:14 +0100
+
 logrotate (3.8.7-1+b1pexip1) pexip; urgency=low
 
   * Bump version
