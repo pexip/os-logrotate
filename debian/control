@@ -8,7 +8,7 @@ Build-Depends: libpopt-dev, debhelper (>= 9),
 Vcs-Svn: http://svn.fedorahosted.org/svn/logrotate/
 Homepage: https://fedorahosted.org/logrotate/
 Standards-Version: 3.9.5
-XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
 
 Package: logrotate
 Architecture: any
