@@ -1,8 +1,8 @@
 deb-config-h.patch
-datehack.patch
 manpage.patch
 cpp-crossbuild.patch
 chown-484762.patch
-mktime-718332.patch
-man-su-explanation-729315.patch
+taboo-716649.patch
+fix-test-breakage.patch
+fix-test-pagesize.patch
 state-recover.patch

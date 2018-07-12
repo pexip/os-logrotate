@@ -1,0 +1,25 @@
+Index: logrotate.git/config.c
+===================================================================
+--- logrotate.git.orig/config.c	2016-12-29 02:36:22.065158629 +0100
++++ logrotate.git/config.c	2016-12-29 02:36:22.060158633 +0100
+@@ -128,6 +128,7 @@
+ static char *defTabooExts[] = { ".rpmsave", ".rpmorig", "~", ",v",
+     ".disabled", ".dpkg-old", ".dpkg-dist", ".dpkg-new", ".cfsaved",
+     ".ucf-old", ".ucf-dist", ".ucf-new",
++    ".dpkg-bak", ".dpkg-del",
+     ".rpmnew", ".swp", ".cfsaved", ".rhn-cfg-tmp-*"
+ };
+ static int defTabooCount = sizeof(defTabooExts) / sizeof(char *);
+Index: logrotate.git/logrotate.8
+===================================================================
+--- logrotate.git.orig/logrotate.8	2016-12-29 02:36:22.065158629 +0100
++++ logrotate.git/logrotate.8	2016-12-29 02:36:22.061158632 +0100
+@@ -559,7 +559,7 @@
+ for information on the taboo extensions). If a + precedes the list of
+ extensions, the current taboo extension list is augmented, otherwise it
+ is replaced. At startup, the taboo extension list 
+-contains .rpmsave, .rpmorig, ~, .disabled, .dpkg\-old, .dpkg\-dist, .dpkg\-new, .cfsaved, .ucf\-old, .ucf\-dist, .ucf\-new, .rpmnew, .swp, .cfsaved, .rhn\-cfg\-tmp\-*
++contains .rpmsave, .rpmorig, ~, .disabled, .dpkg\-old, .dpkg\-dist, .dpkg\-new, .dpkg-bak, .dpkg-del, .cfsaved, .ucf\-old, .ucf\-dist, .ucf\-new, .rpmnew, .swp, .cfsaved, .rhn\-cfg\-tmp\-*
+ 
+ .TP
+ \fBtaboopat\fR [+] \fIlist\fR

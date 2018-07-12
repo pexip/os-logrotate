@@ -1,8 +1,8 @@
-Index: logrotate-3.8.5/logrotate.c
+Index: logrotate.git/logrotate.c
 ===================================================================
---- logrotate-3.8.5.orig/logrotate.c	2013-06-26 22:17:20.821656206 +0100
-+++ logrotate-3.8.5/logrotate.c	2013-06-26 22:17:20.817656132 +0100
-@@ -314,8 +314,12 @@
+--- logrotate.git.orig/logrotate.c	2016-12-29 02:36:21.851158797 +0100
++++ logrotate.git/logrotate.c	2016-12-29 02:36:21.848158800 +0100
+@@ -496,8 +496,12 @@
      if (fchmod(fd, (S_IRUSR | S_IWUSR) & sb->st_mode)) {
  	message(MESS_ERROR, "error setting mode of %s: %s\n",
  		fileName, strerror(errno));

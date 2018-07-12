@@ -34,10 +34,10 @@ endif
 override_dh_auto_install:
 
 override_dh_auto_clean:
-	$(MAKE) clean
-	cd test ; rm -f $$(ls | egrep '^test-config.[0-9]+$$')
-	cd test ; rm -f test*.log* anothertest*.log* state test-config.
-	cd test ; rm -f scriptout mail-out compress-args different*.log*
+	-$(MAKE) clean
+	-cd test ; rm -f $$(ls | egrep '^test-config.[0-9]+$$')
+	-cd test ; rm -f test*.log* anothertest*.log* state test-config.
+	-cd test ; rm -f scriptout mail-out compress-args different*.log*
 
 # ACL tests will fail if we're not building with ACL
 override_dh_auto_test:

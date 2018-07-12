@@ -1,7 +1,7 @@
 VERSION = $(shell awk '/Version:/ { print $$2 }' logrotate.spec)
 OS_NAME = $(shell uname -s)
 LFS = $(shell echo `getconf LFS_CFLAGS 2>/dev/null`)
-CFLAGS = -Wall -D_GNU_SOURCE -D$(OS_NAME) -DVERSION=\"$(VERSION)\" $(RPM_OPT_FLAGS) $(LFS)
+CFLAGS = -Wall -D_GNU_SOURCE -D$(OS_NAME) -DVERSION=\"$(VERSION)\" -DHAVE_STRPTIME=1 -DHAVE_QSORT -DHAVE_STRUCT_STAT_ST_BLOCKS -DHAVE_STRUCT_STAT_ST_BLKSIZE -DHAVE_VSYSLOG $(RPM_OPT_FLAGS) $(LFS)
 PROG = logrotate
 MAN = logrotate.8
 MAN5 = logrotate.conf.5
@@ -114,7 +114,14 @@ endif
 
 RCSVERSION = $(subst .,-,$(VERSION))
 
-all: $(TARGET) pretest
+all: show_warning $(TARGET) pretest
+
+show_warning:
+	@echo ""
+	@echo "Building using this Makefile is DEPRECATED."
+	@echo "Use './autogen.sh', './configure' and 'make' instead."
+	@echo "Some new features will not be enabled when building using this Makefile."
+	@echo ""
 
 $(PROG): $(OBJS)
 

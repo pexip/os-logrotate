@@ -4,17 +4,17 @@ Priority: important
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Pexip-Original-Maintainer: Paul Martin <pm@debian.org>
 Build-Depends: libpopt-dev, debhelper (>= 9),
- libselinux1-dev [linux-any], libacl1-dev [linux-any]
+ libselinux1-dev [linux-any], libacl1-dev [linux-any], automake
 Vcs-Svn: http://svn.fedorahosted.org/svn/logrotate/
-Homepage: https://fedorahosted.org/logrotate/
-Standards-Version: 3.9.5
+Homepage: https://github.com/logrotate/logrotate
+Standards-Version: 3.9.6
 XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
 
 Package: logrotate
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, cron | anacron | cron-daemon, base-passwd (>= 2.0.3.4)
 Breaks: postgresql-common (<= 126)
-Recommends: mailx
+Recommends: bsd-mailx | mailx
 Description: Log rotation utility
  The logrotate utility is designed to simplify the administration of
  log files on a system which generates a lot of log files.  Logrotate
