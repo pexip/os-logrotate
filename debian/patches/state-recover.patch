@@ -2,8 +2,8 @@ diff --git a/logrotate.c b/logrotate.c
 index 174a26b..864e571 100644
 --- a/logrotate.c
 +++ b/logrotate.c
-@@ -2215,7 +2215,7 @@ int main(int argc, const char **argv)
- 		return 1;
+@@ -2549,7 +2549,7 @@ int main(int argc, const char **argv)
+     nowSecs = time(NULL);
  
  	if (readState(stateFile))
 -		exit(1);
@@ -15,7 +15,7 @@ diff --git a/test/test b/test/test
 index b91ba5a..36dcc8e 100755
 --- a/test/test
 +++ b/test/test
-@@ -1138,14 +1138,15 @@ EOF
+@@ -1188,14 +1188,15 @@ EOF
  cleanup 46
  
  # ------------------------------- Test 46 ------------------------------------
