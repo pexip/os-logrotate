@@ -1,0 +1,22 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Wed, 29 Aug 2018 00:14:45 +0200
+Subject: drop MemoryDenyWriteExecute from systemd service
+
+Bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=907505
+---
+ examples/logrotate.service | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/examples/logrotate.service b/examples/logrotate.service
+index 3bc5b52..2983367 100644
+--- a/examples/logrotate.service
++++ b/examples/logrotate.service
+@@ -17,7 +17,7 @@ IOSchedulingPriority=7
+ #  no ProtectHome for userdir logs
+ #  no PrivateNetwork for mail deliviery
+ #  no ProtectKernelTunables for working SELinux with systemd older than 235
+-MemoryDenyWriteExecute=true
++#  no MemoryDenyWriteExecute for gzip on i686
+ PrivateDevices=true
+ PrivateTmp=true
+ ProtectControlGroups=true

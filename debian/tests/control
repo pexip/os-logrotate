@@ -1,0 +1,3 @@
+Tests: version simple-run
+Depends: @
+Restrictions: needs-root

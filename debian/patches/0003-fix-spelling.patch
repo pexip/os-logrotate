@@ -1,0 +1,22 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Tue, 21 Nov 2017 12:19:17 +0100
+Subject: fix spelling
+
+found by lintian
+---
+ logrotate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/logrotate.c b/logrotate.c
+index 02d45e9..43b2ea0 100644
+--- a/logrotate.c
++++ b/logrotate.c
+@@ -2683,7 +2683,7 @@ int main(int argc, const char **argv)
+ 		" - Copyright (C) 1995-2001 Red Hat, Inc.\n");
+ 	fprintf(stderr,
+ 		"This may be freely redistributed under the terms of "
+-		"the GNU Public License\n\n");
++		"the GNU General Public License\n\n");
+ 	poptPrintUsage(optCon, stderr, 0);
+ 	poptFreeContext(optCon);
+ 	exit(1);
