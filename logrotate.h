@@ -5,7 +5,10 @@
 #include "queue.h"
 #include <glob.h>
 
-#include "config.h"
+/* needed for basename() on OS X */
+#if HAVE_LIBGEN_H
+#   include <libgen.h>
+#endif
 
 #define LOG_FLAG_COMPRESS	(1 << 0)
 #define LOG_FLAG_CREATE		(1 << 1)
@@ -22,6 +25,7 @@
 #define LOG_FLAG_DATEYESTERDAY	(1 << 12)
 #define LOG_FLAG_OLDDIRCREATE	(1 << 13)
 #define LOG_FLAG_TMPFILENAME	(1 << 14)
+#define LOG_FLAG_DATEHOURAGO	(1 << 15)
 
 #define NO_MODE ((mode_t) -1)
 #define NO_UID  ((uid_t) -1)
@@ -45,9 +49,10 @@ struct logInfo {
     char *oldDir;
     enum { ROT_HOURLY, ROT_DAYS, ROT_WEEKLY, ROT_MONTHLY, ROT_YEARLY, ROT_SIZE
             } criterium;
-    unsigned long long threshhold;
-    unsigned long long maxsize;
-    unsigned long long minsize;
+    int weekday; /* used by ROT_WEEKLY only */
+    off_t threshold;
+    off_t maxsize;
+    off_t minsize;
     int rotateCount;
     int rotateMinAge;
     int rotateAge;
@@ -81,6 +86,8 @@ TAILQ_HEAD(logInfoHead, logInfo) logs;
 extern int numLogs;
 extern int debug;
 
+int switch_user(uid_t user, gid_t group);
+int switch_user_back(void);
 int readAllConfigPaths(const char **paths);
 #if !defined(asprintf) && !defined(_FORTIFY_SOURCE)
 int asprintf(char **string_ptr, const char *format, ...);
