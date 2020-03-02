@@ -3,4 +3,3 @@
 0007-skip-cronjob-when-running-with-systemd.patch
 0008-fix-test-pagesize.patch
 0009-drop-MemoryDenyWriteExecute-from-systemd-service.patch
-state-recover.patch

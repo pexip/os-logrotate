@@ -1,3 +1,10 @@
+logrotate (3.14.0-4pexip1) pexip; urgency=medium
+
+  * Migrate to Buster
+  * Remove state-recover.patch as it is now applied upstream
+
+ -- Vincent Sanders <vince@pexip.com>  Mon, 02 Mar 2020 13:57:08 +0000
+
 logrotate (3.14.0-4) unstable; urgency=medium
 
   * d/control:
