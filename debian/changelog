@@ -1,3 +1,62 @@
+logrotate (3.14.0-4) unstable; urgency=medium
+
+  * d/control:
+    - add Multi-Arch: foreign (Closes: #730420)
+    - bump to std version 4.2.1 (no further changes)
+  * d/tests: 
+    - fix and add simple test
+  * d/patches: drop MemoryDenyWriteExecute from systemd service (Closes:
+    #907505)
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Wed, 29 Aug 2018 00:21:11 +0200
+
+logrotate (3.14.0-3) unstable; urgency=medium
+
+  * d/patches: 
+    - re-introduce patch fixing test failure on ppc64el
+    - fix order of patches
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Tue, 21 Aug 2018 22:23:48 +0200
+
+logrotate (3.14.0-2) unstable; urgency=medium
+
+  * d/upstream/metadata: update
+  * d/logrotate.README.Debian: drop
+  * d/rules: wrap configure options
+  * d/patches: drop mapage patch
+  * d/control: add Rules-Requires-Root no
+  * d/control: bump to std version 4.2.0 (no further changes)
+  * d/gbp.conf: add minimal config
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Tue, 21 Aug 2018 16:13:34 +0200
+
+logrotate (3.14.0-1) unstable; urgency=medium
+
+  * New upstream version 3.14.0 (Closes: #879262)
+
+  * debian:
+    - Switch to debhelper 11
+    - Support logrotation triggered by systemd timer (Closes: #858021)
+
+    - control:
+      + Set myself as maintainer (Closes: #887151)
+      + Bump standards version to 4.1.4
+      + Update vcs fields (Closes: #823687)
+      + add minimal autotest suite
+    - cron.daily: Align with upstream
+    - logrotate.conf: align with upstream
+    - patches:
+      + Refresh patches, drop upstream applied ones
+      + spelling fix
+    - rules:
+      + Enable hardening
+      + Add dh_missing --fail-missing
+      + Simplify statefile change
+      + set correct path for mail command
+    - watch: check signature
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Fri, 29 Jun 2018 11:26:00 +0200
+
 logrotate (3.11.0-0.1pexip1) pexip; urgency=low
 
   * Migrate to Stretch
@@ -115,10 +174,10 @@ logrotate (3.8.3-4) experimental; urgency=low
     + patch/rh392-skip-errors.patch: Fixed bug which prevented skipping
       particular log file config if the config contains errors
     + patch/rh393-kilo.patch: Allow both 'k' and 'K' in size.
-    + patch/rh395-action-error-skip.patch: Fixed skipping of configs 
-      containing firstaction/lastaction in case of error before these 
+    + patch/rh395-action-error-skip.patch: Fixed skipping of configs
+      containing firstaction/lastaction in case of error before these
       directives
-    + patch/rh396-changes.patch: update to CHANGES file 
+    + patch/rh396-changes.patch: update to CHANGES file
     + patch/rh398-preremove.patch: new option "preremove"
     + patch/rh399-leakedfds.patch: Close leaked fds
     + patch/rh400-install.patch: Add INSTALL file
@@ -185,7 +244,7 @@ logrotate (3.8.1-5) experimental; urgency=low
   * Add Homepage and Vcs-Svn to debian/control. (Closes: #675313)
   * Cherry pick upstream svn patches:
     + svn-r343.patch: Add strlen() sanity check to mbrtowc() call.
-    + svn-r344.patch: Show error and ignore config if '{' is not present 
+    + svn-r344.patch: Show error and ignore config if '{' is not present
       after log files declaration.
     + svn-r346.patch: Support whitespaces in compressoptions directive
       (Closes: #159797)
@@ -238,7 +297,7 @@ logrotate (3.8.1-2) unstable; urgency=low
 logrotate (3.8.1-1) unstable; urgency=low
 
   * New upstream release
-    + Changes in 3.8.0 fix build problems on non-POSIX architectures 
+    + Changes in 3.8.0 fix build problems on non-POSIX architectures
       (Closes: #632501)
     + New config options: dateyesterday, maxsize, su. (See manpage.)
       (maxsize Closes: #635184)
@@ -247,13 +306,13 @@ logrotate (3.8.1-1) unstable; urgency=low
       compressoptions behaviour. (Closes: #576362)
   * debian/logrotate.README.Debian: update now that rsyslog is default
     for new installs. (Closes: #649598)
-  * Incidentally, rsyslog is now default syslog, and that doesn't use 
+  * Incidentally, rsyslog is now default syslog, and that doesn't use
     savelog but makes use of logrotate. (Closes: #379843)
   * Install logrotate.conf.5 (a redirect to logrotate.8) (Closes: #182261)
   * debian/control: depend on cron-daemon as an alternative to cron.
     (Closes: #334137)
   * lintian warning fix: move debian/logrotate.copyright to debian/copyright
-  * debian/control: add Breaks: postgresql-common (<= 126) as its config 
+  * debian/control: add Breaks: postgresql-common (<= 126) as its config
     file requires an "su". Postgres maintainer is aware and awaits this
     upload.
   * Upload to unstable. (Closes: #648025)
@@ -287,8 +346,8 @@ logrotate (3.7.9-1) experimental; urgency=low
     - ucf-taboos.patch (applied upstream)
     - compressutime.patch (applied upstream)
     - rh-toolarge.patch (upstream does things a different way)
-    - rh-curdir2.patch (applied upstream) 
-    - parser571033.patch (applied upstream) 
+    - rh-curdir2.patch (applied upstream)
+    - parser571033.patch (applied upstream)
   * Added build-arch/build-indep targets to debian/rules.
   * Update standards version to 3.9.2 (no changes).
  -- Paul Martin <pm@debian.org>  Wed, 22 Jun 2011 15:51:46 +0100
@@ -315,10 +374,10 @@ logrotate (3.7.8-5) unstable; urgency=low
 logrotate (3.7.8-4) unstable; urgency=high
 
   * New patch:
-    + security-388608.patch: A race condition in the creation of 
-      compressed and copied log files makes it possible to overwrite 
-      arbitrary files by generating a link or symlink during a window 
-      of opportunity between logrotate renaming a log file and creating 
+    + security-388608.patch: A race condition in the creation of
+      compressed and copied log files makes it possible to overwrite
+      arbitrary files by generating a link or symlink during a window
+      of opportunity between logrotate renaming a log file and creating
       the copy of the next. (Closes: #388608) Once again, many thanks to
       Florian Zumbiehl for forcing me to think.
   * Uploading to unstable.
@@ -338,7 +397,7 @@ logrotate (3.7.8-3) experimental; urgency=low
 logrotate (3.7.8-2) experimental; urgency=low
 
   * New patch:
-    + create-388608.patch: Really squash the race condition for the 
+    + create-388608.patch: Really squash the race condition for the
       creation of compressed log files and the creation of new ones.
       (Closes: 388608)
 
@@ -349,7 +408,7 @@ logrotate (3.7.8-1) experimental; urgency=low
   * New upstream release:
     - do not exit on status file errors
     - limit config file inclusion nesting
-    - use hashes for status file handling (patch by Petr Tesarik 
+    - use hashes for status file handling (patch by Petr Tesarik
       <ptesarik@suse.cz> and Leonardo Chiquitto)
     - dateformat to allow unixtime (patch by Sami Kerola <kerolasa@iki.fi>)
   * Upstream has taken some of our patches:
@@ -361,7 +420,7 @@ logrotate (3.7.8-1) experimental; urgency=low
   * Upstream has also fixed createOutputFile to be more secure
     (Closes: #388608)
   * New Debian patch:
-    + sharedscripts-519432.patch: Prerotate and postrotate scripts get the 
+    + sharedscripts-519432.patch: Prerotate and postrotate scripts get the
       list of rotated files passed to them as arguments. (Closes: #519432)
     + chown-484762.patch: If running as non-root, warn but don't abort if
       we can't chown the compressed log file. (Closes: #484762)
@@ -386,7 +445,7 @@ logrotate (3.7.7-2) unstable; urgency=low
   * Upload to unstable.
   * Patches from upstream (3.7.7-4):
     + rh-curdir2.patch: logrotate would crash under SELinux.
-    + rh-toolarge.patch: abort if the config file looks as though it 
+    + rh-toolarge.patch: abort if the config file looks as though it
       might be a huge log file, rather than segfaulting.
       (Closes: #435086)
 
@@ -395,12 +454,12 @@ logrotate (3.7.7-2) unstable; urgency=low
 logrotate (3.7.7-1) experimental; urgency=low
 
   * New upstream release (based on upstream 3.7.7-1)
-    + The source code has been run through "indent" which makes looking 
+    + The source code has been run through "indent" which makes looking
       for differences "interesting".
     + Debian patches no longer required:
       - compress-499502.patch: upstream has fix.
       - globfix-277652: upstream has a fix. In addition, logrotate will
-        attempt to continue rather than stopping dead if there are any 
+        attempt to continue rather than stopping dead if there are any
         errors in its config files. (Closes: #285858)
       - script-argument.patch: upstream has fixed this.
       - rh-dateext.patch: upstream has it.
@@ -422,10 +481,10 @@ logrotate (3.7.7-1) experimental; urgency=low
     + Upstream fixes:
       - Manpage fixed for example using /var/log/news. (Closes: #339502)
 
-  * dateext-504079.patch: If dateext is used with delaycompress and 
-    mailfirst, the wrong filename (one that has compressext added) is 
+  * dateext-504079.patch: If dateext is used with delaycompress and
+    mailfirst, the wrong filename (one that has compressext added) is
     attempted to be mailed. (Closes: #504079,#433496)
-  * dst.patch: Update to add the current "hour" to the struct tm, so 
+  * dst.patch: Update to add the current "hour" to the struct tm, so
     that DST changes don't cause the date to be off by one.
     (Closes: #416177)
   * Corrected upstream URL (Closes: #410420)
@@ -435,7 +494,7 @@ logrotate (3.7.7-1) experimental; urgency=low
 
 logrotate (3.7.1-5) unstable; urgency=high
 
-  * globfix-277652: ignore glob failure until end of block, so that 
+  * globfix-277652: ignore glob failure until end of block, so that
     missingok can be taken into account. (Closes: #277652)
   * Urgency high for RC bug.
 
@@ -443,9 +502,9 @@ logrotate (3.7.1-5) unstable; urgency=high
 
 logrotate (3.7.1-4) unstable; urgency=high
 
-  * Change default logrotate.conf to use permission 660 for 
+  * Change default logrotate.conf to use permission 660 for
     /var/log/btmp. (Closes: #370050)
-  * compress-499502.patch: Don't clobber existing files if in debug mode 
+  * compress-499502.patch: Don't clobber existing files if in debug mode
     and compressing. (Closes: #499502)
   * Lintian cleanups:
     + debian-rules-ignores-make-clean-error
@@ -480,7 +539,7 @@ logrotate (3.7.1-3) unstable; urgency=low
     installed with bcron. (Closes: #304038, #349150)
   * debian/rules: Fix backports, allowing them to use selinux.
     (Closes: #340363)
-  * uncompressChild-warning.patch: Fix a "might be used uninitialised" 
+  * uncompressChild-warning.patch: Fix a "might be used uninitialised"
     warning from gcc.
 
  -- Paul Martin <pm@debian.org>  Sat,  8 Apr 2006 23:02:19 +0100
@@ -534,7 +593,7 @@ logrotate (3.7-5) unstable; urgency=high
 
   Brown paper bag upload.
 
-  * 42-execlp-bin-sh: Fix major flaw in the last patch... it tries to 
+  * 42-execlp-bin-sh: Fix major flaw in the last patch... it tries to
     execute the logfile. Thanks very much for the quick report, Philipp.
     It was my fault, not yours. (Closes: #279965)
 
@@ -542,9 +601,9 @@ logrotate (3.7-5) unstable; urgency=high
 
 logrotate (3.7-4) unstable; urgency=high
 
-  * 42-execlp-bin-sh: Call /bin/sh directly for scripts. Allows /tmp to 
+  * 42-execlp-bin-sh: Call /bin/sh directly for scripts. Allows /tmp to
     be mounted noexec. This is a simple fix for sarge -- a potentially
-    better fix is available upstream. Thanks to Philipp Hartmann. 
+    better fix is available upstream. Thanks to Philipp Hartmann.
     (Closes: #279965)
 
   * Documentation fixes:
@@ -557,9 +616,9 @@ logrotate (3.7-4) unstable; urgency=high
 
 logrotate (3.7-3) unstable; urgency=high
 
-  * 41-execlp-fix: "critical" bug with execlp() call on scripts. 
-    This affects only those who use the undocumented feature of the 
-    arguments of the script being the files that are being rotated. 
+  * 41-execlp-fix: "critical" bug with execlp() call on scripts.
+    This affects only those who use the undocumented feature of the
+    arguments of the script being the files that are being rotated.
     Oh rats... I've just documented it! (Closes: #276172)
     Thanks to Lars for the quick NMU.
 
@@ -571,7 +630,7 @@ logrotate (3.7-3) unstable; urgency=high
     (Closes: #272716)
   * 52-man-lastaction.dpatch fixes mistake in the lastaction
     description. (Closes: #278172)
-  * Credit some of the RedHat authors in the debian/copyright file, and 
+  * Credit some of the RedHat authors in the debian/copyright file, and
     update the location of the cvs repository.
   * 52-man-startcount.dpatch, fixes manpage for "start" description.
     (Closes: #290628)
@@ -580,8 +639,8 @@ logrotate (3.7-3) unstable; urgency=high
 
 logrotate (3.7-2) unstable; urgency=high
 
-  * Added commented out stuff in debian/rules to build a 
-    logrotate-selinux package should Russell's move to get libselinux1 
+  * Added commented out stuff in debian/rules to build a
+    logrotate-selinux package should Russell's move to get libselinux1
     made "base" fail.
   * Patch: 21-taboo-to-debug, reduces the "Ignoring..." messages of
     the taboo filter from ERROR to DEBUG. (Closes: #249073)
@@ -629,7 +688,7 @@ logrotate (3.6.5-3) unstable; urgency=low
 
 logrotate (3.6.5-2) unstable; urgency=low
 
-  * Added check for prerotate and postrotate scripts having no 
+  * Added check for prerotate and postrotate scripts having no
     terminating endscript. (Closes: #162976)
 
  -- Paul Martin <pm@debian.org>  Wed,  9 Oct 2002 18:21:36 +0100
@@ -669,7 +728,7 @@ logrotate (3.5.9-8) unstable; urgency=high
 
   * Added check to cron.daily (blatantly stolen from exim's) to only
     attempt to run logrotate if it's binary exists. (Closes: #144265)
-  * Priority high to ensure this minimal bugfix (a violation of a 
+  * Priority high to ensure this minimal bugfix (a violation of a
     "should" policy directive) gets into woody.
 
  -- Paul Martin <pm@debian.org>  Tue, 23 Apr 2002 23:16:43 +0100
@@ -678,7 +737,7 @@ logrotate (3.5.9-7) unstable; urgency=medium
 
   * More typos fixed. Thanks to David Lawyer <dave@lafn.org>.
     (Closes: #134944).
-  * Simple logic fix in decision of whether to uncompress a logfile 
+  * Simple logic fix in decision of whether to uncompress a logfile
     when mailing it. (Closes: #137573)
 
  -- Paul Martin <pm@debian.org>  Tue, 12 Mar 2002 17:30:02 +0000
@@ -898,6 +957,3 @@ logrotate (3.2-1) unstable; urgency=low
 
  -- Joseph Carter <knghtbrd@debian.org>  Thu, 22 Apr 1999 15:33:04 -0700
 
-Local variables:
-mode: debian-changelog
-End:

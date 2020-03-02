@@ -1,8 +1,6 @@
-deb-config-h.patch
-manpage.patch
-cpp-crossbuild.patch
-chown-484762.patch
-taboo-716649.patch
-fix-test-breakage.patch
-fix-test-pagesize.patch
+0003-fix-spelling.patch
+0004-btmp-config-allow-rw-group-access.patch
+0007-skip-cronjob-when-running-with-systemd.patch
+0008-fix-test-pagesize.patch
+0009-drop-MemoryDenyWriteExecute-from-systemd-service.patch
 state-recover.patch

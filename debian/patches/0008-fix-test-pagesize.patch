@@ -1,0 +1,48 @@
+From: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Date: Tue, 21 Aug 2018 22:12:23 +0200
+Subject: Make expect value in test 62 depend on page size
+
+    https://buildd.debian.org/status/fetch.php?pkg=logrotate&arch=powerpc&ver=3.11.0-0.1~exp2&stamp=1483609625
+    https://buildd.debian.org/status/fetch.php?pkg=logrotate&arch=ppc64el&ver=3.11.0-0.1~exp2&stamp=1483609707
+
+    The Debian buildds, at least those running ppc64el (they also build
+    for powerpc) put the source tree into a tmpfs. A tmpfs allocates
+    memory per page, and with an unusually huge page size of 64Ki, the
+    two pages needed for a sparse file with some content as created in
+    test 62, 128Ki are actually allocated - which is more than the limit
+    of 100 in the test.
+
+    So get the actual pagesize and raise the limits if it's 32Ki or
+    more. The second limit is wild-guessed, in the failing test the
+    value was 10304 (= 131 pages).
+
+    On a 4Ki-page system (amd64), the observed values were 8 (= two
+    pages), and 12 (= three pages).
+
+    Reproducer:
+        printf zero > test.log ; truncate -s 10M test.log ; echo x >> test.log ; du test.log
+---
+ test/test-0062.sh | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/test/test-0062.sh b/test/test-0062.sh
+index 4a726be..3cc9d57 100755
+--- a/test/test-0062.sh
++++ b/test/test-0062.sh
+@@ -27,7 +27,15 @@ if [ $SIZE_OLD != $SIZE_NEW ]; then
+ 	exit 3
+ fi
+ 
+-if [ $SIZE_SPARSE_OLD -gt 100 ] || [ $SIZE_SPARSE_NEW -gt 100 ]; then
++PAGESIZE="$(getconf PAGESIZE)"
++if [ -z "$PAGESIZE" ] || [ "$PAGESIZE" -lt 32768 ] ; then
++	LIMIT1=100
++	LIMIT2=100
++else
++	LIMIT1=200
++	LIMIT2=20000
++fi
++if [ $SIZE_SPARSE_OLD -gt $LIMIT1 ] || [ $SIZE_SPARSE_NEW -gt $LIMIT2 ]; then
+ 	echo "Bad size of sparse logs"
+ 	echo "test.log: $SIZE_SPARSE_OLD"
+ 	echo "test.log.1: $SIZE_SPARSE_NEW"
