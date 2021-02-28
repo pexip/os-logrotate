@@ -1,9 +1,146 @@
+logrotate (3.18.0-2) unstable; urgency=medium
+
+  * d/patches: cherry-pick relevant commits for Bullseye
+    - improve support for running as unprivileged user
+      + Open files we want to compress as read-only.
+      + Only attempt to set user/group if running as root.
+    - documentation updates
+      + logrotate.8: make the /var/log/news example consistent
+      + Fix a typo in the example logrotate.conf
+  * debian: refactor usage of configuration file
+    No actual changes in default configuration.
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Sun, 28 Feb 2021 17:37:19 +0100
+
+logrotate (3.18.0-1) unstable; urgency=medium
+
+  * New upstream version 3.18.0
+
+  * d/patches: drop all upstream applied patches
+  * d/copyright: update years
+  * d/control: bump to std version 4.5.1 (no further changes)
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Fri, 08 Jan 2021 10:06:25 +0100
+
+logrotate (3.17.0-2) unstable; urgency=medium
+
+  * d/patches: imported upstream applied patches
+    - add support for Zstandard compressed files
+    - configure: add -Wmissing-prototypes to default compiler warnings
+    - Add fallback to resolve uids and gids numerically
+      (Closes: #415857)
+    - travis: add FreeBSD jobs
+      (Makes the testsuite succeed on BSD platforms)
+    - Use Bourne Shell for test scripts
+    - Avoid mode conversion warning in readModeUidGid
+      (Fixes FTBFS on kfreebsd)
+  * d/rules: do not disable tests on non-linux platforms
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Mon, 02 Nov 2020 17:44:14 +0100
+
+logrotate (3.17.0-1) unstable; urgency=medium
+
+  * New upstream version 3.17.0 (Closes: #945097, #966016)
+
+  * debian:
+    - bump to debhelper compat level 13
+    - wrap-and-sort
+  * d/rules:
+    - drop custom cleanup
+  * d/patches:
+    - rebase and drop applied ones
+    - drop patch disabling test 70
+    - move debian specific patch to subdir
+    - cherry-pick upstream commits:
+      + use getenv() on macOS and BSD
+      + logrotate.service: harden with ProtectHostname
+      + tests: always run logrotate in verbose mode
+      + test-0070: set log modification time to current date
+      + make `delaycompress` not to fail with `rotate 0`
+  * d/logrotate.preinst: drop ancient maintainer script about old state file
+    paths
+  * d/control: add acl package to build-dependencies to run ACL unit tests
+    on Linux
+  * d/copyright: update years
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Thu, 17 Sep 2020 19:37:27 +0200
+
+logrotate (3.16.0-3) unstable; urgency=medium
+
+  * d/patches: cherry-pick upstream switch-user fixes
+    - When using configuration directive su, accept staying as user root.
+      In particular restore mailman's usage of 'su root list'.
+    - Reset user/group when error returning early in rotateLogSet().
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Wed, 08 Apr 2020 20:04:29 +0200
+
+logrotate (3.16.0-2) unstable; urgency=medium
+
+  * d/patches:
+    - add upstream commit to silence unused parameter warning in
+      acl disabled build
+      Should fix FTBFS on architectures without acl
+    - add upstream commit to enable systemd hardening option ProtectClock
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Tue, 17 Mar 2020 12:14:13 +0100
+
+logrotate (3.16.0-1) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Drop no longer supported add-log-mailing-address setting from
+    debian/changelog.
+  * Add missing colon in closes line.
+  * Remove obsolete fields Name from debian/upstream/metadata.
+
+  [ Christian Göttsche ]
+  * New upstream version 3.16.0 (Closes: #915301)
+
+  * d/patches: rebase and drop upstream applied ones
+    - add new directive ProtectKernelLogs
+    - drop NoNewPrivileges, which is actually not implied and
+      might be needed for third party rotate scripts
+  * d/copyright: add extra sections
+    - add section for queue.h licensed under BSD-3-Clause
+    - add section for build-aux/git-version-gen licensed under GPL-3+
+  * d/control: bump to std version 4.5.0 (no further changes)
+  * d/rules: fail on compiler warnings
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Sat, 29 Feb 2020 20:00:32 +0100
+
+logrotate (3.15.1-2) unstable; urgency=medium
+
+  * d/control: drop postgresql-common break
+  * d/copyright: update for 2019
+  * d/salsa-ci.yml: add standard salsa-ci configuration
+  * d/tests: add additional small test script
+  * d/patches: add testsuite patches to pass reprotest on salsa-ci
+  * d/patches: tighten systemd service hardening
+  * d/control: bump to std version 4.4.1 (no further changes)
+  * d/source/lintian-overrides: ignore package-does-not-install-examples
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Tue, 12 Nov 2019 15:24:39 +0100
+
+logrotate (3.15.1-1) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/changelog: Remove trailing whitespaces
+
+  [ Christian Göttsche ]
+  * New upstream version 3.15.1
+
+  * d/patches: rebase and drop upstream applied ones
+  * d/patches: add spelling fix
+  * d/control: bump to std version 4.4.0 (no further changes)
+  * debian: Switch to debhelper compat level 12 (no further changes)
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Fri, 30 Aug 2019 20:37:13 +0200
+
 logrotate (3.14.0-4) unstable; urgency=medium
 
   * d/control:
     - add Multi-Arch: foreign (Closes: #730420)
     - bump to std version 4.2.1 (no further changes)
-  * d/tests: 
+  * d/tests:
     - fix and add simple test
   * d/patches: drop MemoryDenyWriteExecute from systemd service (Closes:
     #907505)
@@ -12,7 +149,7 @@ logrotate (3.14.0-4) unstable; urgency=medium
 
 logrotate (3.14.0-3) unstable; urgency=medium
 
-  * d/patches: 
+  * d/patches:
     - re-introduce patch fixing test failure on ppc64el
     - fix order of patches
 
@@ -265,7 +402,7 @@ logrotate (3.8.1-3) unstable; urgency=low
 
 logrotate (3.8.1-2) unstable; urgency=low
 
-  * Removed dependancy on fcron as it is no longer in the repository.
+  * Removed dependency on fcron as it is no longer in the repository.
 
  -- Paul Martin <pm@debian.org>  Wed, 21 Dec 2011 11:02:53 +0000
 
@@ -873,7 +1010,7 @@ logrotate (3.2-9) unstable; urgency=low
 logrotate (3.2-8) unstable; urgency=low
 
   * You can now disable logrotate.d entries by renaming them to include
-    the .disabled extention.  Also logrotate will now ignore dpkg dropping
+    the .disabled extension.  Also logrotate will now ignore dpkg dropping
     files (Closes: #43703)
 
  -- Joseph Carter <knghtbrd@debian.org>  Sun, 29 Aug 1999 11:34:27 -0700
@@ -893,7 +1030,7 @@ logrotate (3.2-6) unstable; urgency=low
 logrotate (3.2-5) unstable; urgency=low
 
   * /etc/logrotate.conf is now a conffile.  How I missed this it one before
-    is quite beyond me.  Oops.  =>  (Closes #42195)
+    is quite beyond me.  Oops.  =>  (Closes: #42195)
 
  -- Joseph Carter <knghtbrd@debian.org>  Fri, 30 Jul 1999 10:39:58 -0700
 
@@ -919,10 +1056,10 @@ logrotate (3.2-2) unstable; urgency=low
   * I spaced the use of /bin/mail---oops.  It's a symlink on this system so
     it didn't BREAK anything here.  I also didn't declare dependency on
     mailx.  Someone get me a paper bag.  Closes: bug#37817
-  * Renamed debian/* files to debian/logrotate.* in preperation for The
+  * Renamed debian/* files to debian/logrotate.* in preparation for The
     Debhelper 2.x Way.  Harmless change and makes me feel useful.  =>
   * Changed wtmp rotation in the default conffile.  Rotates as root.adm for
-    now.  This is a temporary change pending utmp group implemenetation.
+    now.  This is a temporary change pending utmp group implementation.
 
  -- Joseph Carter <knghtbrd@debian.org>  Sun, 16 May 1999 16:09:42 -0700
 
@@ -931,7 +1068,3 @@ logrotate (3.2-1) unstable; urgency=low
   * Initial Release.
 
  -- Joseph Carter <knghtbrd@debian.org>  Thu, 22 Apr 1999 15:33:04 -0700
-
-Local variables:
-mode: debian-changelog
-End:

@@ -4,21 +4,73 @@ All notable changes to this project will be documented in this file.
 
 ## [UNRELEASED]
 
-[UNRELEASED]: https://github.com/logrotate/logrotate/compare/3.14.0...master
+[UNRELEASED]: https://github.com/logrotate/logrotate/compare/3.18.0...master
+
+## [3.18.0] - 2021-01-08
+  - allow UIDs and GIDs to be specified numerically (#217)
+  - add support for Zstandard compressed files (#355)
+  - make `delaycompress` not to fail with `rotate 0` (#341)
+
+[3.18.0]: https://github.com/logrotate/logrotate/compare/3.17.0...3.18.0
+
+## [3.17.0] - 2020-07-10
+  - lock state file to prevent parallel execution of logrotate (#295, #297)
+  - add `.bak` extension to default taboo list (#332)
+  - allow to pass a home-relative path to `include` (#322, #326)
+  - `switch_user_permanently`: skip switchback check if switched to root (#319)
+  - logrotate.service: enable `ProtectClock` to restrict setting of clock (#306)
+  - delete old logs hit by `maxage` regardless of `dateext` (#301)
+
+[3.17.0]: https://github.com/logrotate/logrotate/compare/3.16.0...3.17.0
+
+## [3.16.0] - 2020-02-28
+  - fix compilation with gcc-10, which defaults to `-fno-common` (#288)
+  - reduce number of `open()` operations on state file (#282)
+  - validate user/group given to the `su` directive early (#276)
+  - add hardening options to systemd unit file in examples (#274, #291)
+  - fix crash of logrotate on invalid configuration with include (#271)
+  - fix heap buffer overflow on too long logfile extension (#270)
+
+[3.16.0]: https://github.com/logrotate/logrotate/compare/3.15.1...3.16.0
+
+## [3.15.1] - 2019-08-30
+  - use correct `create` mode in examples/btmp (#257)
+  - fix several bugs found by fuzzing (#254)
+  - do not abort globbing on a broken symlink (#251)
+  - rearrange `logrotate.8` man page to improve readability (#248)
+  - encourage admins to use the `su` directive in `logrotate.8` man page (#236)
+
+[3.15.1]: https://github.com/logrotate/logrotate/compare/3.15.0...3.15.1
+
+## [3.15.0] - 2018-12-04
+  - timer unit: change trigger fuzz from 12h to 1h (#230)
+  - service unit: only run if `/var/log` is mounted (#230)
+  - preserve fractional part of timestamps when compressing (#226)
+  - re-indent source code using spaces only (#188)
+  - minage: avoid rounding issue while comparing the amount of seconds (#36)
+  - never remove old log files if `rotate -1` is specified (#202)
+  - return non-zero exit status if a config file contains an error (#199)
+  - make `copytruncate` work with `rotate 0` (#191)
+  - warn user if both size and the time interval options are used (#192)
+  - pass rotated log file name as the 2nd argument of the `postrotate` script
+    when sharedscript is not enabled (#193)
+  - rename `logrotate-default` to `logrotate.conf` (#187)
+
+[3.15.0]: https://github.com/logrotate/logrotate/compare/3.14.0...3.15.0
 
 ## [3.14.0] - 2018-03-09
 
-  - make ```configure``` show support status for SELinux and ACL at the end (#179)
+  - make `configure` show support status for SELinux and ACL at the end (#179)
   - make logrotate build again on FreeBSD (#178)
-  - move ```wtmp``` and ```btmp``` definitions from ```logrotate.conf``` to
-    separate configuration files in ```logrotate.d``` (#168)
-  - print a warning about logrotate doing nothing when ```-d``` is used (#165)
+  - move `wtmp` and `btmp` definitions from `logrotate.conf` to
+    separate configuration files in `logrotate.d` (#168)
+  - print a warning about logrotate doing nothing when `-d` is used (#165)
   - do not reject executable config files (#166)
-  - add hardening options to ```logrotate.service``` in examples (#143)
-  - fix spurious compressor failure when using ```su``` and ```compress``` (#169)
+  - add hardening options to `logrotate.service` in examples (#143)
+  - fix spurious compressor failure when using `su` and `compress` (#169)
   - keep logrotate version in .tarball-version in release tarballs (#156)
-  - introduce the ```hourago``` configuration directive (#159)
-  - ignore empty patterns in ```tabooext``` to avoid exclusion of everything (#160)
+  - introduce the `hourago` configuration directive (#159)
+  - ignore empty patterns in `tabooext` to avoid exclusion of everything (#160)
   - properly report skipped test cases instead of pretending success
 
 [3.14.0]: https://github.com/logrotate/logrotate/compare/3.13.0...3.14.0
@@ -27,38 +79,38 @@ All notable changes to this project will be documented in this file.
 
   - make distribution tarballs report logrotate version properly
     [RHBZ#1500264](https://bugzilla.redhat.com/1500264)
-  - make ```(un)compress work``` even if stdin and/or stdout are closed (#154)
-  - remove ```-s``` from ```DEFAULT_MAIL_COMMAND``` and improve its documentation (#152)
-  - uncompress logs before mailing them even if ```delaycompress``` is enabled (#151)
+  - make `(un)compress work` even if stdin and/or stdout are closed (#154)
+  - remove `-s` from `DEFAULT_MAIL_COMMAND` and improve its documentation (#152)
+  - uncompress logs before mailing them even if `delaycompress` is enabled (#151)
   - handle unlink of a non-existing log file as a warning only (#144)
-  - include compile-time options in the output of ```logrotate --version``` (#145)
-  - make ```logrotate --version``` print to stdout instead of stderr (#145)
+  - include compile-time options in the output of `logrotate --version` (#145)
+  - make `logrotate --version` print to stdout instead of stderr (#145)
   - flush write buffers before syncing state file (#148)
   - specify (un)compress utility explicitly in tests (#137)
   - enable running tests in parallel (#132)
   - explicitly map root UID/GID to 0 on Cygwin (#133)
-  - add ```.dpkg-bak``` and ```.dpkg-del``` to default tabooext list (#134)
+  - add `.dpkg-bak` and `.dpkg-del` to default tabooext list (#134)
 
 [3.13.0]: https://github.com/logrotate/logrotate/compare/3.12.3...3.13.0
 
 ## [3.12.3] - 2017-06-30
 
-  - ```copy``` and ```copytruncate``` directives now work together again
-  - ```unlink()``` is no longer preceded by ```open()``` unless shred is enabled (#124)
-  - ```compress``` and ```uncompress``` now take commands from ```$PATH```, too (#122)
+  - `copy` and `copytruncate` directives now work together again
+  - `unlink()` is no longer preceded by `open()` unless shred is enabled (#124)
+  - `compress` and `uncompress` now take commands from `$PATH`, too (#122)
 
 [3.12.3]: https://github.com/logrotate/logrotate/compare/3.12.2...3.12.3
 
 ## [3.12.2] - 2017-05-02
 
-  - build fixes related to ```-Werror``` (#119) and ```-Werror=format=``` (#108)
-  - ```configure --enable-werror``` now controls use of the -Werror flag (#123)
+  - build fixes related to `-Werror` (#119) and `-Werror=format=` (#108)
+  - `configure --enable-werror` now controls use of the -Werror flag (#123)
 
 [3.12.2]: https://github.com/logrotate/logrotate/compare/3.12.1...3.12.2
 
 ## [3.12.1] - 2017-04-21
 
-  - Included forgotten ```build-aux``` directory in release tarballs.
+  - Included forgotten `build-aux` directory in release tarballs.
 
 [3.12.1]: https://github.com/logrotate/logrotate/compare/3.12.0...3.12.1
 
@@ -67,12 +119,12 @@ All notable changes to this project will be documented in this file.
   - Fixed accident removal of rotated files with dateext. (#118)
   - Line comments inside globs in config files are now skipped. (#109)
   - logrotate now recovers from a corrupted state file. (#45)
-  - ```Makefile.legacy``` has been removed. (#103)
-  - ```config.h``` is now generated by autotools. (#102 and #103)
-  - ```createolddir``` now creates old directory as unprivileged user. (#114)
-  - ```weekly``` rotations are now predictable and configurable. (#93)
+  - `Makefile.legacy` has been removed. (#103)
+  - `config.h` is now generated by autotools. (#102 and #103)
+  - `createolddir` now creates old directory as unprivileged user. (#114)
+  - `weekly` rotations are now predictable and configurable. (#93)
   - Errors in config files are no longer treated as fatal errors. (#81)
-  - ```configure --with-default-mail-command``` specifies default mail command. (#100)
+  - `configure --with-default-mail-command` specifies default mail command. (#100)
   - Fixed heap buffer overflow when parsing crafted config file. (#33)
 
 [3.12.0]: https://github.com/logrotate/logrotate/compare/3.11.0...3.12.0
@@ -398,7 +450,7 @@ All notable changes to this project will be documented in this file.
   - compress and maillast didn't work together properly
   - delaycompress and mailfirst didn't work properly
   - don't use system() for mailing (or uncompressing) logs anymore
-  - use "-s" for speciying the subjected of mailed logs
+  - use "-s" for specifying the subjected of mailed logs
 
 [3.7]: https://github.com/logrotate/logrotate/compare/r3-6...r3-7
 

@@ -1,6 +1,7 @@
 From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Date: Fri, 1 Sep 2017 15:31:34 +0200
-Subject: skip cronjob when running with systemd
+Forwarded: not-needed
+Subject: skip cronjob when running with systemd and in removed state
 
 ---
  examples/logrotate.cron | 10 ++++++++++

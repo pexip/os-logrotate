@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./test-common.sh
 
@@ -8,7 +8,7 @@ cleanup 23
 # symlinks - symlinks rotation is not allowed for security reasons.
 preptest test.log.original 23 1
 ln -s test.log.original test.log
-$RLR test-config.23 --force 2>error.log 
+$RLR test-config.23 --force 2>error.log
 
 checkoutput <<EOF
 test.log 0 zero

@@ -2,19 +2,23 @@ Source: logrotate
 Section: admin
 Priority: important
 Maintainer: Christian Göttsche <cgzones@googlemail.com>
-Build-Depends: libpopt-dev, debhelper (>= 11),
- libselinux1-dev [linux-any], libacl1-dev [linux-any]
+Build-Depends: acl [linux-any] <!nocheck>,
+               debhelper-compat (= 13),
+               libacl1-dev [linux-any],
+               libpopt-dev,
+               libselinux1-dev [linux-any]
 Vcs-Browser: https://salsa.debian.org/debian/logrotate
 Vcs-Git: https://salsa.debian.org/debian/logrotate.git
 Homepage: https://github.com/logrotate/logrotate
-Standards-Version: 4.2.1
+Standards-Version: 4.5.1
 Rules-Requires-Root: no
 
 Package: logrotate
 Architecture: any
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, ${misc:Depends}, cron | anacron | cron-daemon | systemd-sysv
-Breaks: postgresql-common (<= 126)
+Depends: cron | anacron | cron-daemon | systemd-sysv,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Recommends: bsd-mailx | mailx
 Description: Log rotation utility
  The logrotate utility is designed to simplify the administration of

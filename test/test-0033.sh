@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./test-common.sh
 
@@ -11,7 +11,7 @@ fi
 cleanup 33
 
 # ------------------------------- Test 33 ------------------------------------
-# With mode in 'create' directive, ACLs are overwriten by chmod
+# With mode in 'create' directive, ACLs are overwritten by chmod
 preptest test.log 33 1 0
 
 
