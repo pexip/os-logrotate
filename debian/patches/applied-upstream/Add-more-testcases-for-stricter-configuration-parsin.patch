@@ -1,0 +1,144 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 13 Dec 2021 21:47:16 +0100
+Applied-Upstream: https://github.com/logrotate/logrotate/commit/9cbc22b91caff6cfbd1378737c62276bd9ffe3e7
+Subject: Add more testcases for stricter configuration parsing
+
+---
+ test/Makefile.am        |  4 +++-
+ test/test-0102.sh       |  5 +++++
+ test/test-0103.sh       |  5 +++++
+ test/test-0104.sh       | 19 +++++++++++++++++++
+ test/test-0105.sh       | 25 +++++++++++++++++++++++++
+ test/test-config.104.in |  8 ++++++++
+ test/test-config.105.in |  8 ++++++++
+ 7 files changed, 73 insertions(+), 1 deletion(-)
+ create mode 100755 test/test-0104.sh
+ create mode 100755 test/test-0105.sh
+ create mode 100644 test/test-config.104.in
+ create mode 100644 test/test-config.105.in
+
+diff --git a/test/Makefile.am b/test/Makefile.am
+index 319ba2f..d3ccd1b 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -90,7 +90,9 @@ TEST_CASES = \
+ 	test-0100.sh \
+ 	test-0101.sh \
+ 	test-0102.sh \
+-	test-0103.sh
++	test-0103.sh \
++	test-0104.sh \
++	test-0105.sh
+ 
+ EXTRA_DIST = \
+ 	compress \
+diff --git a/test/test-0102.sh b/test/test-0102.sh
+index d2550a5..367bde9 100755
+--- a/test/test-0102.sh
++++ b/test/test-0102.sh
+@@ -14,3 +14,8 @@ if [ $? -eq 0 ]; then
+    echo "No error, but there should be one."
+    exit 3
+ fi
++
++checkoutput <<EOF
++test.log 0 zero
++test.log.1 0 first
++EOF
+diff --git a/test/test-0103.sh b/test/test-0103.sh
+index bccd8ed..32a3c19 100755
+--- a/test/test-0103.sh
++++ b/test/test-0103.sh
+@@ -14,3 +14,8 @@ if [ $? -eq 0 ]; then
+    echo "No error, but there should be one."
+    exit 3
+ fi
++
++checkoutput <<EOF
++test.log 0 zero
++test.log.1 0 first
++EOF
+diff --git a/test/test-0104.sh b/test/test-0104.sh
+new file mode 100755
+index 0000000..e3c0009
+--- /dev/null
++++ b/test/test-0104.sh
+@@ -0,0 +1,19 @@
++#!/bin/sh
++
++. ./test-common.sh
++
++cleanup 104
++
++# ------------------------------- Test 104 ------------------------------------
++# test config with unknown (new?) keyword
++preptest test1.log 104 1
++preptest test2.log 104 1
++
++$RLR test-config.104 --force || exit 23
++
++checkoutput <<EOF
++test1.log 0
++test1.log.1 0 zero
++test2.log 0
++test2.log.1 0 zero
++EOF
+diff --git a/test/test-0105.sh b/test/test-0105.sh
+new file mode 100755
+index 0000000..b51e9be
+--- /dev/null
++++ b/test/test-0105.sh
+@@ -0,0 +1,25 @@
++#!/bin/sh
++
++. ./test-common.sh
++
++cleanup 105
++
++# ------------------------------- Test 105 ------------------------------------
++# test config with garbage keyword bails out
++preptest test1.log 105 1
++preptest test2.log 105 1
++
++$RLR test-config.105 --force
++
++if [ $? -eq 0 ]; then
++   echo "No error, but there should be one."
++   exit 3
++fi
++
++
++checkoutput <<EOF
++test1.log 0 zero
++test1.log.1 0 first
++test2.log 0
++test2.log.1 0 zero
++EOF
+diff --git a/test/test-config.104.in b/test/test-config.104.in
+new file mode 100644
+index 0000000..988d902
+--- /dev/null
++++ b/test/test-config.104.in
+@@ -0,0 +1,8 @@
++&DIR&/test1.log {
++    newkeyword
++    rotate 1
++}
++
++&DIR&/test2.log {
++    rotate 1
++}
+diff --git a/test/test-config.105.in b/test/test-config.105.in
+new file mode 100644
+index 0000000..bfab9b9
+--- /dev/null
++++ b/test/test-config.105.in
+@@ -0,0 +1,8 @@
++&DIR&/test1.log {
++    g@rbag€[]+#*
++    rotate 1
++}
++
++&DIR&/test2.log {
++    rotate 1
++}
