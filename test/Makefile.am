@@ -76,6 +76,17 @@ TEST_CASES = \
 	test-0075.sh \
 	test-0076.sh \
 	test-0077.sh \
+	test-0078.sh \
+	test-0079.sh \
+	test-0080.sh \
+	test-0081.sh \
+	test-0082.sh \
+	test-0083.sh \
+	test-0084.sh \
+	test-0085.sh \
+	test-0086.sh \
+	test-0087.sh \
+	test-0088.sh \
 	test-0100.sh \
 	test-0101.sh
 
@@ -92,8 +103,10 @@ EXTRA_DIST = \
 DISTCLEANFILES = \
 	test.ACL \
 	test.SELINUX \
-	test.example \
-	test-????/*
+	test.example
+
+distclean-local:
+	rm -rf test-????/
 
 # this needs to run exactly once even if tests run in parallel
 all:

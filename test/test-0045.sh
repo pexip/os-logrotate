@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./test-common.sh
 
@@ -22,5 +22,5 @@ rm -f error.log
 
 checkoutput <<EOF
 test.log 0 zero
-scriptout 0 
+scriptout 0
 EOF

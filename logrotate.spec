@@ -1,6 +1,6 @@
 Summary: Rotates, compresses, removes and mails system log files
 Name: logrotate
-Version: 3.14.0
+Version: 3.18.0
 Release: 1%{?dist}
 License: GPLv2+
 Group: System Environment/Base
@@ -32,12 +32,12 @@ make %{?_smp_mflags} RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT MANDIR=%{_mandir}
+make install DESTDIR=$RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib
 
-install -p -m 644 examples/logrotate-default $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.conf
+install -p -m 644 examples/logrotate.conf $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.conf
 install -p -m 644 examples/btmp $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/btmp
 install -p -m 644 examples/wtmp $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/wtmp
 install -p -m 755 examples/logrotate.cron $RPM_BUILD_ROOT%{_sysconfdir}/cron.daily/logrotate

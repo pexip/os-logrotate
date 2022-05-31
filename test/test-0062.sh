@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./test-common.sh
 
@@ -15,9 +15,14 @@ echo x >> test.log
 cp test.log test.example
 
 SIZE_SPARSE_OLD=$(du test.log|awk '{print $1}')
-SIZE_OLD=$(du --apparent-size test.log|awk '{print $1}')
+if [ $SIZE_SPARSE_OLD -gt 100 ]; then
+    echo "unable to create (or detect) sparse files"
+    exit 77
+fi
+
+SIZE_OLD=$($DU_APPARENT_SIZE test.log|awk '{print $1}')
 $RLR test-config.62 --force
-SIZE_NEW=$(du --apparent-size test.log.1|awk '{print $1}')
+SIZE_NEW=$($DU_APPARENT_SIZE test.log.1|awk '{print $1}')
 SIZE_SPARSE_NEW=$(du test.log.1|awk '{print $1}')
 
 if [ $SIZE_OLD != $SIZE_NEW ]; then
@@ -27,7 +32,7 @@ if [ $SIZE_OLD != $SIZE_NEW ]; then
 	exit 3
 fi
 
-if [ $SIZE_SPARSE_OLD -gt 100 ] || [ $SIZE_SPARSE_NEW -gt 100 ]; then
+if [ $SIZE_SPARSE_NEW -gt 100 ]; then
 	echo "Bad size of sparse logs"
 	echo "test.log: $SIZE_SPARSE_OLD"
 	echo "test.log.1: $SIZE_SPARSE_NEW"
