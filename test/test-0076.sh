@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 . ./test-common.sh
 
@@ -9,7 +9,7 @@ cleanup 76
 # https://github.com/logrotate/logrotate/issues/154
 preptest test.log 76 2 2
 
-$RLR test-config.76 --verbose <&- >&-
+$RLR test-config.76 <&- >&-
 
 checkoutput <<EOF
 test.log 0

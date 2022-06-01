@@ -1,5 +1,6 @@
-0003-fix-spelling.patch
-0004-btmp-config-allow-rw-group-access.patch
-0007-skip-cronjob-when-running-with-systemd.patch
-0008-fix-test-pagesize.patch
-0009-drop-MemoryDenyWriteExecute-from-systemd-service.patch
+applied-upstream/Open-files-we-want-to-compress-as-read-only.patch
+applied-upstream/Only-attempt-to-set-user-group-if-running-as-root.patch
+applied-upstream/logrotate.8-make-the-var-log-news-example-consistent.patch
+applied-upstream/Fix-a-typo-in-the-example-logrotate.conf.patch
+debian/skip-cronjob-when-running-with-systemd.patch
+debian/logrotate.conf-disable-dateext-on-Debian.patch

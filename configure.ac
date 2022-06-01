@@ -13,8 +13,7 @@ m4_ifdef([AM_SILENT_RULES],
 AC_USE_SYSTEM_EXTENSIONS
 
 AC_PROG_CC
-AC_PROG_CC_C99
-AC_STRUCT_ST_BLKSIZE
+AC_CHECK_MEMBERS([struct stat.st_blksize])
 AC_STRUCT_ST_BLOCKS
 
 AC_CANONICAL_HOST
@@ -84,7 +83,7 @@ case "$host" in
 esac
 
 AC_ARG_WITH([state-file-path],
-  AC_HELP_STRING([--with-state-file-path=PATH],
+  AS_HELP_STRING([--with-state-file-path=PATH],
                  [path to state file (/var/lib/logrotate.status by default)]),
   [
     case "$withval" in
@@ -100,7 +99,7 @@ AC_DEFINE_UNQUOTED([STATEFILE], ["$STATE_FILE_PATH"], [State file path.])
 AC_SUBST(STATE_FILE_PATH)
 
 AC_ARG_WITH([default-mail-command],
-  AC_HELP_STRING([--with-default-mail-command=COMMAND],
+  AS_HELP_STRING([--with-default-mail-command=COMMAND],
                  [default mail command (e.g. /bin/mail)]),
   [
     case "$withval" in
@@ -116,7 +115,7 @@ AC_DEFINE_UNQUOTED([DEFAULT_MAIL_COMMAND], ["$DEFAULT_MAIL_COMMAND"], [default m
 AC_SUBST(DEFAULT_MAIL_COMMAND)
 
 AC_ARG_WITH([compress-command],
-  AC_HELP_STRING([--with-compress-command=COMMAND],
+  AS_HELP_STRING([--with-compress-command=COMMAND],
                  [compress command (default: /bin/gzip)]),
   [
     case "$withval" in
@@ -132,7 +131,7 @@ AC_DEFINE_UNQUOTED([COMPRESS_COMMAND], "$COMPRESS_COMMAND", [default compress co
 AC_SUBST(COMPRESS_COMMAND)
 
 AC_ARG_WITH([uncompress-command],
-  AC_HELP_STRING([--with-uncompress-command=COMMAND],
+  AS_HELP_STRING([--with-uncompress-command=COMMAND],
                  [uncompress command (default: /bin/gunzip)]),
   [
     case "$withval" in
@@ -148,7 +147,7 @@ AC_DEFINE_UNQUOTED([UNCOMPRESS_COMMAND], "$UNCOMPRESS_COMMAND", [default uncompr
 AC_SUBST(UNCOMPRESS_COMMAND)
 
 AC_ARG_WITH([compress-extension],
-  AC_HELP_STRING([--with-compress-extension=EXTENSION],
+  AS_HELP_STRING([--with-compress-extension=EXTENSION],
                  [compress extension (default: .gz)]),
   [
     case "$withval" in
@@ -166,10 +165,24 @@ AC_SUBST(COMPRESS_EXT)
 AC_DEFINE_UNQUOTED([ROOT_UID], [0], [Root user-id.])
 AC_SUBST(ROOT_UID)
 
-AC_CHECK_FUNCS([asprintf fork madvise qsort strndup strptime vfork vsyslog])
+AC_CHECK_FUNCS([asprintf madvise qsort secure_getenv strndup strptime utimensat vsyslog])
 AC_CONFIG_HEADERS([config.h])
 
-AM_CFLAGS="-Wall -Wextra -Wmissing-format-attribute -Wmissing-noreturn -Wpointer-arith -Wshadow -Wstrict-prototypes -Wundef -Wunused -Wwrite-strings"
+AM_CFLAGS="\
+ -Wall\
+ -Wconversion\
+ -Wdeclaration-after-statement\
+ -Wextra\
+ -Wmissing-format-attribute\
+ -Wmissing-noreturn\
+ -Wmissing-prototypes\
+ -Wpointer-arith\
+ -Wshadow\
+ -Wstrict-prototypes\
+ -Wundef\
+ -Wunused\
+ -Wwrite-strings"
+
 AC_ARG_ENABLE([werror],
         [AS_HELP_STRING([--enable-werror],
                 [Treat warnings as errors (default: warnings are not errors)])],
