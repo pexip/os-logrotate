@@ -1,3 +1,9 @@
+logrotate (3.18.0-2+deb11u1pexip1) pexip-bullseye; urgency=medium
+
+  * New upstream release: point release.
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Mon, 25 Jul 2022 12:21:35 +0100
+
 logrotate (3.18.0-2+deb11u1) bullseye; urgency=medium
 
   * d/patches: cherry-pick upstream fixes:
