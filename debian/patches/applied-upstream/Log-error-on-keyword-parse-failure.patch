@@ -1,0 +1,27 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Tue, 20 Apr 2021 17:41:12 +0200
+Applied-Upstream: https://github.com/logrotate/logrotate/commit/326179a901b0a8d10e902cae0abab0c68d7abc98
+Subject: Log error on keyword parse failure
+
+isolateWord() only fails on OOM and EOF.
+---
+ config.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/config.c b/config.c
+index b0ccdb5..ebadb86 100644
+--- a/config.c
++++ b/config.c
+@@ -1092,8 +1092,11 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
+                 if (isalpha((unsigned char)*start)) {
+                     free(key);
+                     key = isolateWord(&start, &buf, length);
+-                    if (key == NULL)
++                    if (key == NULL) {
++                        message(MESS_ERROR, "%s:%d failed to parse keyword\n",
++                                configFile, lineNum);
+                         continue;
++                    }
+                     if (!isspace((unsigned char)*start)) {
+                         message(MESS_NORMAL, "%s:%d keyword '%s' not properly"
+                                 " separated, found %#x\n",

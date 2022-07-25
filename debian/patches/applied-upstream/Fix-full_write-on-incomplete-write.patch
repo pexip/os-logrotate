@@ -1,0 +1,51 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Sat, 7 Aug 2021 18:22:11 +0200
+Applied-Upstream: https://github.com/logrotate/logrotate/commit/eb7ec2b9112b229cccfe94c675eb5aabf6ad2baa
+Subject: Fix full_write on incomplete write
+
+Currently on an incomplete write(2) the subsequent write(2) will again
+use the same starting position in the given buffer, which was already
+successfully written, leading to data corruption.
+
+Found by clang-13
+
+    logrotate.c:1140:17: warning: variable 'ptr' set but not used [-Wunused-but-set-variable]
+    const char *ptr = (const char *) buf;
+                ^
+
+Also check for EINTR only on write(2) failure.
+Also use `unsigned char *` to signal handling bytes, not a string.
+
+Fixes: f1dc0d9 ("Allow rotation of sparse files with copytruncate")
+---
+ logrotate.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/logrotate.c b/logrotate.c
+index 88003db..bffcbf4 100644
+--- a/logrotate.c
++++ b/logrotate.c
+@@ -1080,18 +1080,18 @@ static int is_nul (void const *buf, size_t bufsize)
+ static size_t full_write(int fd, const void *buf, size_t count)
+ {
+     size_t total = 0;
+-    const char *ptr = (const char *) buf;
++    const unsigned char *ptr = (const unsigned char *) buf;
+ 
+     while (count > 0)
+     {
+         size_t n_rw;
+         for (;;)
+         {
+-            n_rw = (size_t)write (fd, buf, count);
+-            if (errno == EINTR)
++            n_rw = (size_t)write (fd, ptr, count);
++            if (n_rw == (size_t) -1 && errno == EINTR)
+                 continue;
+-            else
+-                break;
++
++            break;
+         }
+         if (n_rw == (size_t) -1)
+             break;
