@@ -4,9 +4,9 @@ Upstream-Contact: https://github.com/logrotate/logrotate/issues
 Source: https://github.com/logrotate/logrotate
 
 Files: *
-Copyright: 1999-2021, Erik Troan, Preston Brown, Elliot Lee, Miloslav Trmac,
-                      Dan Walsh, Peter Vrabec, Jesse Keating, Tomas Smetana
-                      and Kamil Dudka
+Copyright: 1999-2022, Erik Troan, Preston Brown, Elliot Lee, Miloslav Trmac,
+                      Dan Walsh, Peter Vrabec, Jesse Keating, Tomas Smetana,
+                      Christian Göttsche and Kamil Dudka
 License: GPL-2
 
 Files: build-aux/git-version-gen
@@ -20,7 +20,7 @@ License: BSD-3-Clause
 Files: debian/*
 Copyright:      1999, Joseph Carter
               ?-2017, Paul Martin <pm@debian.org>
-           2018-2021, Christian Göttsche <cgzones@googlemail.com>
+           2018-2022, Christian Göttsche <cgzones@googlemail.com>
 License: GPL-2
 
 ## Licenses

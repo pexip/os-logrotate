@@ -10,7 +10,7 @@ Build-Depends: acl [linux-any] <!nocheck>,
 Vcs-Browser: https://salsa.debian.org/debian/logrotate
 Vcs-Git: https://salsa.debian.org/debian/logrotate.git
 Homepage: https://github.com/logrotate/logrotate
-Standards-Version: 4.5.1
+Standards-Version: 4.6.1
 Rules-Requires-Root: no
 
 Package: logrotate
@@ -19,7 +19,7 @@ Multi-Arch: foreign
 Depends: cron | anacron | cron-daemon | systemd-sysv,
          ${misc:Depends},
          ${shlibs:Depends}
-Recommends: bsd-mailx | mailx
+Suggests: bsd-mailx | mailx
 Description: Log rotation utility
  The logrotate utility is designed to simplify the administration of
  log files on a system which generates a lot of log files.  Logrotate

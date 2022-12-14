@@ -1,25 +1,66 @@
-logrotate (3.18.0-2+deb11u2) bullseye; urgency=medium
+logrotate (3.21.0-1) unstable; urgency=medium
 
-  * d/patches: cherry-pick usptream fix:
-    - writeState: do nothing if state file is /dev/null (Closes: #1039868)
+  * New upstream version 3.21.0 (Closes: #1015964)
 
- -- Christian Göttsche <cgzones@googlemail.com>  Fri, 30 Jun 2023 19:45:16 +0200
+  [ Marc Deslauriers ]
+  * d/rules: fix sed syntax to not end up with a backup file (Closes: #1011771)
 
-logrotate (3.18.0-2+deb11u1) stable; urgency=medium
+  [ Christian Göttsche ]
+  * d/watch: rework after GitHub API change
+  * d/s/lintian-overrides: update format
 
-  * d/patches: cherry-pick upstream fixes:
-    - skip locking if state file is world-readable (CVE-2022-1348)
+ -- Christian Göttsche <cgzones@googlemail.com>  Wed, 14 Dec 2022 19:16:50 +0100
 
-    - more strict configuration parsing to avoid parsing
-      parts of foreign files, e.g. core dumps, (see #1002022)
+logrotate (3.20.1-1) unstable; urgency=medium
 
-    - do not use incorrect stat information when verifying an olddir
-      configuration after creating the olddir
+  [ Jeremy Bicha ]
+  * Use group adm on Ubuntu for rotating logs
+  * debian/ubuntu-logrotate.conf: Update comment to /var/log/
 
-    - advance pointer in full_write on incomplete write to avoid data
-      corruption
+  [ Christian Göttsche ]
+  * New upstream version 3.20.1
+    - fix potential DoS from unprivileged users via the state file
+      (CVE-2022-1348)
+  * d/patches: drop upstream applied one
+  * d/control: bump to std version 4.6.1 (no further changes)
+  * d/control: reduce mailx from Recommends to Suggests
 
- -- Christian Göttsche <cgzones@googlemail.com>  Sun, 30 Jan 2022 17:29:14 +0100
+ -- Christian Göttsche <cgzones@googlemail.com>  Thu, 26 May 2022 00:15:57 +0200
+
+logrotate (3.19.0-2) unstable; urgency=medium
+
+  * d/patches: cherry-pick commit skip locking /dev/null,
+    should fix FTBFS on GNU/Hurd
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Sun, 30 Jan 2022 16:15:24 +0100
+
+logrotate (3.19.0-1) unstable; urgency=medium
+
+  * New upstream version 3.19.0
+    - More strict configuration parser, e.g. invalid lines are no longer
+      accepted (Closes: #1002022)
+    - Files with multiple hard links are no longer rotated by default
+
+  * d/rules: enable LTO
+  * d/copyright: update years and upstream names
+  * d/control: bump to std version 4.6.0 (no further changes)
+  * d/patches: add patch to drop ELF header from test case file
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Fri, 07 Jan 2022 19:14:25 +0100
+
+logrotate (3.18.1-2) unstable; urgency=medium
+
+   * Upload to unstable
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Mon, 16 Aug 2021 17:25:02 +0200
+
+logrotate (3.18.1-1) experimental; urgency=medium
+
+  * New upstream version 3.18.1 (Closes: #987242)
+
+  * d/patches: drop upstream applied ones
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Sat, 22 May 2021 18:04:29 +0200
 
 logrotate (3.18.0-2) unstable; urgency=medium
 
