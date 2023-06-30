@@ -13,6 +13,7 @@ applied-upstream/Add-more-testcases-for-stricter-configuration-parsin.patch
 applied-upstream/Do-not-lock-state-file-dev-null.patch
 applied-upstream/skip-locking-if-state-file-is-world-readable.patch
 applied-upstream/drop-world-readable-permission-on-state-file.patch
+applied-upstream/writeState-do-nothing-if-state-file-is-dev-null.patch
 debian/skip-cronjob-when-running-with-systemd.patch
 debian/logrotate.conf-disable-dateext-on-Debian.patch
 debian/replace-ELF-header-in-test-case.patch

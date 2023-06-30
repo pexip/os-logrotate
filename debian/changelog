@@ -1,4 +1,11 @@
-logrotate (3.18.0-2+deb11u1) bullseye; urgency=medium
+logrotate (3.18.0-2+deb11u2) bullseye; urgency=medium
+
+  * d/patches: cherry-pick usptream fix:
+    - writeState: do nothing if state file is /dev/null (Closes: #1039868)
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Fri, 30 Jun 2023 19:45:16 +0200
+
+logrotate (3.18.0-2+deb11u1) stable; urgency=medium
 
   * d/patches: cherry-pick upstream fixes:
     - skip locking if state file is world-readable (CVE-2022-1348)
