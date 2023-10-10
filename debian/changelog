@@ -1,3 +1,9 @@
+logrotate (3.18.0-2+deb11u2pexip2) pexip; urgency=medium
+
+  * Fix distribution
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Tue, 10 Oct 2023 17:42:14 +0100
+
 logrotate (3.18.0-2+deb11u2pexip1) pexip-bullseye; urgency=medium
 
   * New upstream release
