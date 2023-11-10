@@ -1,5 +1,6 @@
 From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Sun, 30 Jan 2022 17:16:48 +0100
+Date: Fri, 7 Jan 2022 18:14:20 +0100
+Forwarded: not-needed
 Subject: replace ELF header in test case
 
 Reduces the noise from Lintian and avoid interferences with dbgsym package.

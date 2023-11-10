@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <unistd.h>
 #include <assert.h>
 #include <wchar.h>
@@ -61,24 +60,20 @@ int asprintf(char **string_ptr, const char *format, ...)
 
     va_start(arg, format);
     size = vsnprintf(NULL, 0, format, arg);
-    size++;
     va_end(arg);
-    va_start(arg, format);
-    str = malloc(size);
-    if (str == NULL) {
-        va_end(arg);
-        /*
-         * Strictly speaking, GNU asprintf doesn't do this,
-         * but the caller isn't checking the return value.
-         */
-        message_OOM();
-        exit(1);
+    if (size < 0) {
+        return -1;
     }
-    rv = vsnprintf(str, size, format, arg);
+    str = malloc((size_t)size + 1);
+    if (str == NULL) {
+        return -1;
+    }
+    va_start(arg, format);
+    rv = vsnprintf(str, (size_t)size + 1, format, arg);
     va_end(arg);
 
     *string_ptr = str;
-    return (rv);
+    return rv;
 }
 
 #endif
@@ -128,7 +123,7 @@ enum {
     STATE_ERROR = 64,
 };
 
-static const char *defTabooExts[] = {
+static const char *const defTabooExts[] = {
     ",v",
     ".bak",
     ".cfsaved",
@@ -315,7 +310,7 @@ static int resolveGid(const char *groupName, gid_t *pGid)
     return -1;
 }
 
-static int readModeUidGid(const char *configFile, int lineNum, char *key,
+static int readModeUidGid(const char *configFile, int lineNum, const char *key,
                           const char *directive, mode_t *mode, uid_t *pUid,
                           gid_t *pGid)
 {
@@ -397,19 +392,31 @@ static char *readAddress(const char *configFile, int lineNum, const char *key,
 
 static int do_mkdir(const char *path, mode_t mode, uid_t uid, gid_t gid) {
     if (mkdir(path, mode) == 0) {
+        int fd;
+
         /* newly created directory, set the owner and permissions */
-        if (chown(path, uid, gid) != 0) {
+        fd = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW);
+        if (fd < 0) {
+            message(MESS_ERROR, "error opening %s after creation: %s\n",
+                    path, strerror(errno));
+            return -1;
+        }
+
+        if (fchown(fd, uid, gid) != 0) {
             message(MESS_ERROR, "error setting owner of %s to uid %u and gid %u: %s\n",
                     path, (unsigned) uid, (unsigned) gid, strerror(errno));
+            close(fd);
             return -1;
         }
 
-        if (chmod(path, mode) != 0) {
+        if (fchmod(fd, mode) != 0) {
             message(MESS_ERROR, "error setting permissions of %s to 0%o: %s\n",
                     path, mode, strerror(errno));
+            close(fd);
             return -1;
         }
 
+        close(fd);
         return 0;
     }
 
@@ -636,7 +643,7 @@ static void set_criterium(enum criterium *pDst, enum criterium src, int *pSet)
 {
     if (*pSet && (*pDst != src)) {
         /* we are overriding a previously set criterium */
-        message(MESS_VERBOSE, "warning: '%s' overrides previously specified '%s'\n",
+        message(MESS_DEBUG, "note: '%s' overrides previously specified '%s'\n",
                 crit_to_string(src), crit_to_string(*pDst));
     }
     *pDst = src;
@@ -780,7 +787,7 @@ int readAllConfigPaths(const char **paths)
         .rotateCount = 0,
         .rotateMinAge = 0,
         .rotateAge = 0,
-        .logStart = -1,
+        .logStart = 1,
         .pre = NULL,
         .post = NULL,
         .first = NULL,
@@ -815,21 +822,19 @@ int readAllConfigPaths(const char **paths)
 
 
     for (i = 0; i < defTabooCount; i++) {
-        int bytes;
         char *pattern = NULL;
 
         /* generate a pattern by concatenating star (wildcard) to the
          * suffix literal
          */
-        bytes = asprintf(&pattern, "*%s", defTabooExts[i]);
-        if (bytes != -1) {
-            tabooPatterns[i] = pattern;
-            tabooCount++;
-        } else {
+        if (asprintf(&pattern, "*%s", defTabooExts[i]) < 0) {
             free_2d_array(tabooPatterns, tabooCount);
             message_OOM();
             return 1;
         }
+
+        tabooPatterns[i] = pattern;
+        tabooCount++;
     }
 
     for (file = paths; *file; file++) {
@@ -937,18 +942,59 @@ static int globerr(const char *pathname, int theerr)
     return 1;
 }
 
+static int expand_home_relative_path(char **path)
+{
+    const char *env_home;
+    char *new_path = NULL;
+
+    if (!*path || (*path)[0] != '~' || (*path)[1] != '/')
+        return 0;
+
+    env_home = secure_getenv("HOME");
+    if (!env_home) {
+        const struct passwd *pwd;
+
+        message(MESS_DEBUG,
+                "cannot get HOME directory from environment "
+                "to replace ~/, trying password database...\n");
+
+        pwd = getpwuid(getuid());
+        if (!pwd) {
+            message(MESS_ERROR, "cannot get passwd entry for "
+                    "running user %u: %s\n",
+                    getuid(), strerror(errno));
+            return 1;
+        }
+        env_home = pwd->pw_dir;
+    }
+
+    if (asprintf(&new_path, "%s/%s", env_home, *path + 2) < 0) {
+        message_OOM();
+        return 1;
+    }
+
+    message(MESS_DEBUG, "replaced '%s' with '%s'\n",
+            *path, new_path);
+
+    free(*path);
+    *path = new_path;
+    return 0;
+}
+
 #define freeLogItem(what) \
     do { \
         free(newlog->what); \
         newlog->what = NULL; \
     } while (0)
 #define RAISE_ERROR() \
-    if (newlog != defConfig) { \
-        state = STATE_ERROR; \
-        goto next_state; \
-    } else { \
-        goto error; \
-    }
+    do { \
+        if (newlog != defConfig) { \
+            state = STATE_ERROR; \
+            goto next_state; \
+        } else { \
+            goto error; \
+        } \
+    } while (0)
 #define MAX_NESTING 16U
 
 static int readConfigFile(const char *configFile, struct logInfo *defConfig)
@@ -961,7 +1007,7 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
     char **scriptDest = NULL;
     struct logInfo *newlog = defConfig;
     char *start, *chptr;
-    struct stat sb;
+    struct stat sb_config;
     int state = STATE_DEFAULT;
     int logerror = 0;
     /* to check if incompatible criteria are specified */
@@ -969,6 +1015,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
     static unsigned recursion_depth = 0U;
     char *globerr_msg = NULL;
     int in_config = 0;
+#ifdef HAVE_MADVISE
+    int r;
+#endif
     struct flock fd_lock = {
         .l_start = 0,
         .l_len = 0,
@@ -988,13 +1037,13 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
         message(MESS_ERROR, "Could not lock file %s for reading\n",
                 configFile);
     }
-    if (fstat(fd, &sb)) {
+    if (fstat(fd, &sb_config)) {
         message(MESS_ERROR, "fstat of %s failed: %s\n", configFile,
                 strerror(errno));
         close(fd);
         return 1;
     }
-    if (!S_ISREG(sb.st_mode)) {
+    if (!S_ISREG(sb_config.st_mode)) {
         message(MESS_DEBUG,
                 "Ignoring %s because it's not a regular file.\n",
                 configFile);
@@ -1002,21 +1051,14 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
         return 0;
     }
 
-    if (!getpwuid(getuid())) {
-        message(MESS_ERROR, "Cannot find logrotate UID (%d) in passwd file: %s\n",
-                getuid(), strerror(errno));
-        close(fd);
-        return 1;
-    }
-
     if (getuid() == ROOT_UID) {
-        if ((sb.st_mode & 07533) != 0400) {
-            message(MESS_DEBUG,
+        if ((sb_config.st_mode & 07533) != 0400) {
+            message(MESS_WARN,
                     "Potentially dangerous mode on %s: 0%o\n",
-                    configFile, (unsigned) (sb.st_mode & 07777));
+                    configFile, (unsigned) (sb_config.st_mode & 07777));
         }
 
-        if (sb.st_mode & 0022) {
+        if (sb_config.st_mode & 0022) {
             message(MESS_ERROR,
                     "Ignoring %s because it is writable by group or others.\n",
                     configFile);
@@ -1024,7 +1066,7 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
             return 0;
         }
 
-        if (sb.st_uid != ROOT_UID) {
+        if (sb_config.st_uid != ROOT_UID) {
             message(MESS_ERROR,
                     "Ignoring %s because the file owner is wrong (should be root or user with uid 0).\n",
                     configFile);
@@ -1033,7 +1075,7 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
         }
     }
 
-    length = (size_t)sb.st_size;
+    length = (size_t)sb_config.st_size;
 
     if (length > 0xffffff) {
         message(MESS_ERROR, "file %s too large, probably not a config file.\n",
@@ -1068,12 +1110,14 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
 
 #ifdef HAVE_MADVISE
 #ifdef MADV_DONTFORK
-    madvise(buf, length + 2,
-            MADV_SEQUENTIAL | MADV_WILLNEED | MADV_DONTFORK);
+    r = madvise(buf, length, MADV_SEQUENTIAL | MADV_WILLNEED | MADV_DONTFORK);
 #else /* MADV_DONTFORK */
-    madvise(buf, length + 2,
-            MADV_SEQUENTIAL | MADV_WILLNEED);
+    r = madvise(buf, length, MADV_SEQUENTIAL | MADV_WILLNEED);
 #endif /* MADV_DONTFORK */
+    if (r < 0) {
+        message(MESS_DEBUG, "Failed to advise use of memory: %s\n",
+                strerror(errno));
+    }
 #endif /* HAVE_MADVISE */
 
     message(MESS_DEBUG, "reading config file %s\n", configFile);
@@ -1092,8 +1136,17 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                 if (isalpha((unsigned char)*start)) {
                     free(key);
                     key = isolateWord(&start, &buf, length);
-                    if (key == NULL)
-                        continue;
+                    if (key == NULL) {
+                        message(MESS_ERROR, "%s:%d failed to parse keyword\n",
+                                configFile, lineNum);
+                        RAISE_ERROR();
+                    }
+                    if (!isspace((unsigned char)*start) && *start != '=') {
+                        message(MESS_ERROR, "%s:%d keyword '%s' not properly"
+                                " separated, found %#x\n",
+                                configFile, lineNum, key, *start);
+                        RAISE_ERROR();
+                    }
                     if (!strcmp(key, "compress")) {
                         newlog->flags |= LOG_FLAG_COMPRESS;
                     } else if (!strcmp(key, "nocompress")) {
@@ -1106,16 +1159,22 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         newlog->flags |= LOG_FLAG_SHRED;
                     } else if (!strcmp(key, "noshred")) {
                         newlog->flags &= ~LOG_FLAG_SHRED;
+                    } else if (!strcmp(key, "allowhardlink")) {
+                        newlog->flags |= LOG_FLAG_ALLOWHARDLINK;
+                    } else if (!strcmp(key, "noallowhardlink")) {
+                        newlog->flags &= ~LOG_FLAG_ALLOWHARDLINK;
                     } else if (!strcmp(key, "sharedscripts")) {
                         newlog->flags |= LOG_FLAG_SHAREDSCRIPTS;
                     } else if (!strcmp(key, "nosharedscripts")) {
                         newlog->flags &= ~LOG_FLAG_SHAREDSCRIPTS;
                     } else if (!strcmp(key, "copytruncate")) {
                         newlog->flags |= LOG_FLAG_COPYTRUNCATE;
+                        newlog->flags &= ~LOG_FLAG_TMPFILENAME;
                     } else if (!strcmp(key, "nocopytruncate")) {
                         newlog->flags &= ~LOG_FLAG_COPYTRUNCATE;
                     } else if (!strcmp(key, "renamecopy")) {
                         newlog->flags |= LOG_FLAG_TMPFILENAME;
+                        newlog->flags &= ~LOG_FLAG_COPYTRUNCATE;
                     } else if (!strcmp(key, "norenamecopy")) {
                         newlog->flags &= ~LOG_FLAG_TMPFILENAME;
                     } else if (!strcmp(key, "copy")) {
@@ -1136,11 +1195,11 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         newlog->flags |= LOG_FLAG_DATEHOURAGO;
                     } else if (!strcmp(key, "dateformat")) {
                         freeLogItem(dateformat);
-                        newlog->dateformat = isolateLine(&start, &buf, length);
-                        if (newlog->dateformat == NULL)
-                            continue;
+                        newlog->dateformat = isolateValue(configFile, lineNum,
+                                                          key, &start, &buf,
+                                                          length);
                     } else if (!strcmp(key, "noolddir")) {
-                        newlog->oldDir = NULL;
+                        freeLogItem(oldDir);
                     } else if (!strcmp(key, "mailfirst")) {
                         newlog->flags |= LOG_FLAG_MAILFIRST;
                     } else if (!strcmp(key, "maillast")) {
@@ -1150,8 +1209,11 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         mode_t tmp_mode = NO_MODE;
                         free(key);
                         key = isolateLine(&start, &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            message(MESS_ERROR, "%s:%d failed to parse su option value\n",
+                                    configFile, lineNum);
+                            RAISE_ERROR();
+                        }
 
                         rv = readModeUidGid(configFile, lineNum, key, "su",
                                             &tmp_mode, &newlog->suUid,
@@ -1264,13 +1326,14 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "shred cycles",
                                            &start, &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         newlog->shred_cycles = (int)strtoul(key, &chptr, 0);
                         if (*chptr || newlog->shred_cycles < 0) {
                             message(MESS_ERROR, "%s:%d bad shred cycles '%s'\n",
                                     configFile, lineNum, key);
-                            goto error;
+                            RAISE_ERROR();
                         }
                     } else if (!strcmp(key, "hourly")) {
                         set_criterium(&newlog->criterium, ROT_HOURLY, &criterium_set);
@@ -1305,8 +1368,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "rotate count", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         newlog->rotateCount = (int)strtol(key, &chptr, 0);
                         if (*chptr || newlog->rotateCount < -1) {
                             message(MESS_ERROR,
@@ -1318,8 +1382,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "start count", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         newlog->logStart = (int)strtoul(key, &chptr, 0);
                         if (*chptr || newlog->logStart < 0) {
                             message(MESS_ERROR, "%s:%d bad start count '%s'\n",
@@ -1330,8 +1395,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "minage count", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         newlog->rotateMinAge = (int)strtoul(key, &chptr, 0);
                         if (*chptr || newlog->rotateMinAge < 0) {
                             message(MESS_ERROR, "%s:%d bad minimum age '%s'\n",
@@ -1342,8 +1408,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "maxage count", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         newlog->rotateAge = (int)strtoul(key, &chptr, 0);
                         if (*chptr || newlog->rotateAge < 0) {
                             message(MESS_ERROR, "%s:%d bad maximum age '%s'\n",
@@ -1351,7 +1418,7 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                             RAISE_ERROR();
                         }
                     } else if (!strcmp(key, "errors")) {
-                        message(MESS_DEBUG,
+                        message(MESS_WARN,
                                 "%s: %d: the errors directive is deprecated and no longer used.\n",
                                 configFile, lineNum);
                     } else if (!strcmp(key, "mail")) {
@@ -1360,13 +1427,14 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                                         "mail", &start, &buf, length))) {
                             RAISE_ERROR();
                         }
-                        else continue;
                     } else if (!strcmp(key, "nomail")) {
                         freeLogItem(logAddress);
                     } else if (!strcmp(key, "missingok")) {
                         newlog->flags |= LOG_FLAG_MISSINGOK;
                     } else if (!strcmp(key, "nomissingok")) {
                         newlog->flags &= ~LOG_FLAG_MISSINGOK;
+                    } else if (!strcmp(key, "ignoreduplicates")) {
+                        newlog->flags |= LOG_FLAG_IGNOREDUPLICATES;
                     } else if (!strcmp(key, "prerotate")) {
                         freeLogItem (pre);
                         scriptStart = start;
@@ -1421,7 +1489,6 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         }
 
                         while (*endtag) {
-                            int bytes;
                             char *pattern = NULL;
 
                             chptr = endtag;
@@ -1437,10 +1504,11 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                                     RAISE_ERROR();
                                 }
                                 tabooPatterns = tmp;
-                                bytes = asprintf(&pattern, "*%.*s", (int)(chptr - endtag), endtag);
+                                if (asprintf(&pattern, "*%.*s", (int)(chptr - endtag), endtag) < 0) {
+                                    message_OOM();
+                                    RAISE_ERROR();
+                                }
 
-                                /* should test for malloc() failure */
-                                assert(bytes != -1);
                                 tabooPatterns[tabooCount] = pattern;
                                 tabooCount++;
                             }
@@ -1481,7 +1549,6 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         }
 
                         while (*endtag) {
-                            int bytes;
                             char *pattern = NULL;
                             char **tmp;
 
@@ -1496,10 +1563,11 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                                 RAISE_ERROR();
                             }
                             tabooPatterns = tmp;
-                            bytes = asprintf(&pattern, "%.*s", (int)(chptr - endtag), endtag);
+                            if (asprintf(&pattern, "%.*s", (int)(chptr - endtag), endtag) < 0) {
+                                message_OOM();
+                                RAISE_ERROR();
+                            }
 
-                            /* should test for malloc() failure */
-                            assert(bytes != -1);
                             tabooPatterns[tabooCount] = pattern;
                             tabooCount++;
 
@@ -1515,39 +1583,15 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "include", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
 
-                        if (key[0] == '~' && key[1] == '/') {
-                            /* replace '~' with content of $HOME cause low-level functions
-                             * like stat() do not support the glob ~
-                             */
-                            const char *env_home = secure_getenv("HOME");
-                            char *new_key = NULL;
-
-                            if (!env_home) {
-                                const struct passwd *pwd = getpwuid(getuid());
-                                message(MESS_DEBUG,
-                                        "%s:%d cannot get HOME directory from environment "
-                                        "to replace ~/ in include directive\n",
-                                        configFile, lineNum);
-                                if (!pwd) {
-                                    message(MESS_ERROR, "%s:%d cannot get passwd entry for "
-                                            "running user %u: %s\n",
-                                           configFile, lineNum, getuid(), strerror(errno));
-                                    RAISE_ERROR();
-                                }
-                                env_home = pwd->pw_dir;
-                            }
-
-                            if (asprintf(&new_key, "%s/%s", env_home, key + 2) == -1) {
-                                message_OOM();
-                                RAISE_ERROR();
-                            }
-                            message(MESS_DEBUG, "%s:%d replaced %s with '%s' for include directive\n",
-                                    configFile, lineNum, key, env_home);
-                            free(key);
-                            key = new_key;
+                        /* replace '~' with content of $HOME cause low-level functions
+                         * like stat() do not support the glob ~
+                         */
+                        if (expand_home_relative_path(&key)) {
+                            RAISE_ERROR();
                         }
 
                         message(MESS_DEBUG, "including %s\n", key);
@@ -1573,13 +1617,22 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                                         "olddir", &start, &buf, length))) {
                             RAISE_ERROR();
                         }
+
+                        /* replace '~' with content of $HOME cause low-level functions
+                         * like stat() do not support the glob ~
+                         */
+                        if (expand_home_relative_path(&newlog->oldDir)) {
+                            RAISE_ERROR();
+                        }
+
                         message(MESS_DEBUG, "olddir is now %s\n", newlog->oldDir);
                     } else if (!strcmp(key, "extension")) {
                         free(key);
                         key = isolateValue(configFile, lineNum, "extension name", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         freeLogItem (extension);
                         newlog->extension = key;
                         key = NULL;
@@ -1589,8 +1642,9 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         free(key);
                         key = isolateValue(configFile, lineNum, "addextension name", &start,
                                            &buf, length);
-                        if (key == NULL)
-                            continue;
+                        if (key == NULL) {
+                            RAISE_ERROR();
+                        }
                         freeLogItem (addextension);
                         newlog->addextension = key;
                         key = NULL;
@@ -1623,7 +1677,7 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
 
                         /* we check whether we changed the compress_cmd. In case we use the appropriate extension
                            as listed in compress_cmd_list */
-                        for(i = 0; i < compress_cmd_list_size; i++) {
+                        for (i = 0; i < compress_cmd_list_size; i++) {
                             if (!strcmp(compress_cmd_list[i].cmd, compresscmd_base)) {
                                 freeLogItem (compress_ext);
                                 newlog->compress_ext = strdup(compress_cmd_list[i].ext);
@@ -1795,11 +1849,13 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                         newlog->files = tmp;
 
                         for (glob_count = 0; glob_count < globResult.gl_pathc; glob_count++) {
-                            struct logInfo *log;
+                            const struct logInfo *log;
+                            struct stat sb_glob;
+                            int add_file = 1;
 
                             /* if we glob directories we can get false matches */
-                            if (!lstat(globResult.gl_pathv[glob_count], &sb) &&
-                                    S_ISDIR(sb.st_mode)) {
+                            if (!lstat(globResult.gl_pathv[glob_count], &sb_glob) &&
+                                    S_ISDIR(sb_glob.st_mode)) {
                                 continue;
                             }
 
@@ -1809,24 +1865,34 @@ static int readConfigFile(const char *configFile, struct logInfo *defConfig)
                                 for (k = 0; k < log->numFiles; k++) {
                                     if (!strcmp(log->files[k],
                                                 globResult.gl_pathv[glob_count])) {
-                                        message(MESS_ERROR,
-                                                "%s:%d duplicate log entry for %s\n",
-                                                configFile, lineNum,
-                                                globResult.gl_pathv[glob_count]);
-                                        logerror = 1;
-                                        goto duperror;
+                                        if (log->flags & LOG_FLAG_IGNOREDUPLICATES) {
+                                            add_file = 0;
+                                            message(MESS_DEBUG,
+                                                    "%s:%d ignore duplicate log entry for %s\n",
+                                                    configFile, lineNum,
+                                                    globResult.gl_pathv[glob_count]);
+                                        } else {
+                                            message(MESS_ERROR,
+                                                    "%s:%d duplicate log entry for %s\n",
+                                                    configFile, lineNum,
+                                                    globResult.gl_pathv[glob_count]);
+                                            logerror = 1;
+                                            goto duperror;
+                                        }
                                     }
                                 }
                             }
 
-                            newlog->files[newlog->numFiles] =
-                                strdup(globResult.gl_pathv[glob_count]);
-                            if (newlog->files[newlog->numFiles] == NULL) {
-                                message_OOM();
-                                logerror = 1;
-                                goto duperror;
+                            if (add_file) {
+                                newlog->files[newlog->numFiles] =
+                                    strdup(globResult.gl_pathv[glob_count]);
+                                if (newlog->files[newlog->numFiles] == NULL) {
+                                    message_OOM();
+                                    logerror = 1;
+                                    goto duperror;
+                                }
+                                newlog->numFiles++;
                             }
-                            newlog->numFiles++;
                         }
 duperror:
                         globfree(&globResult);
@@ -1860,10 +1926,11 @@ duperror:
                     if (newlog->oldDir) {
                         unsigned j;
                         for (j = 0; j < newlog->numFiles; j++) {
-                            char *ld;
+                            char *ld = NULL;
                             char *dirpath;
                             const char *dirName;
-                            struct stat sb2;
+                            struct stat sb_logdir;
+                            struct stat sb_olddir;
 
                             dirpath = strdup(newlog->files[j]);
                             if (dirpath == NULL) {
@@ -1872,7 +1939,7 @@ duperror:
                             }
 
                             dirName = dirname(dirpath);
-                            if (stat(dirName, &sb2)) {
+                            if (stat(dirName, &sb_logdir)) {
                                 if (!(newlog->flags & LOG_FLAG_MISSINGOK)) {
                                     message(MESS_ERROR,
                                             "%s:%d error verifying log file "
@@ -1892,23 +1959,22 @@ duperror:
                                     continue;
                                 }
                             }
-                            ld = malloc(strlen(dirName) + strlen(newlog->oldDir) + 2);
-                            if (ld == NULL) {
-                                message_OOM();
-                                free(dirpath);
-                                goto error;
-                            }
-                            sprintf(ld, "%s/%s", dirName, newlog->oldDir);
-                            free(dirpath);
 
                             if (newlog->oldDir[0] != '/') {
+                                if (asprintf(&ld, "%s/%s", dirName, newlog->oldDir) < 0) {
+                                    message_OOM();
+                                    free(dirpath);
+                                    goto error;
+                                }
                                 dirName = ld;
                             }
                             else {
                                 dirName = newlog->oldDir;
                             }
 
-                            if (stat(dirName, &sb)) {
+                            free(dirpath);
+
+                            if (stat(dirName, &sb_olddir)) {
                                 if (errno == ENOENT && (newlog->flags & LOG_FLAG_OLDDIRCREATE)) {
                                     int ret;
                                     if (newlog->flags & LOG_FLAG_SU) {
@@ -1929,6 +1995,14 @@ duperror:
                                         free(ld);
                                         goto error;
                                     }
+
+                                    if (stat(dirName, &sb_olddir) != 0) {
+                                        message(MESS_ERROR, "%s:%d error verifying created olddir "
+                                                "path %s: %s\n", configFile, lineNum,
+                                                dirName, strerror(errno));
+                                        free(ld);
+                                        goto error;
+                                    }
                                 }
                                 else {
                                     message(MESS_ERROR, "%s:%d error verifying olddir "
@@ -1941,7 +2015,7 @@ duperror:
 
                             free(ld);
 
-                            if (sb.st_dev != sb2.st_dev
+                            if (sb_logdir.st_dev != sb_olddir.st_dev
                                     && !(newlog->flags & (LOG_FLAG_COPYTRUNCATE | LOG_FLAG_COPY | LOG_FLAG_TMPFILENAME))) {
                                 message(MESS_ERROR,
                                         "%s:%d olddir %s and log file %s "
@@ -1959,7 +2033,7 @@ duperror:
                     message(MESS_ERROR, "%s:%d lines must begin with a keyword "
                             "or a filename (possibly in double quotes)\n",
                             configFile, lineNum);
-                    state = STATE_SKIP_LINE;
+                    RAISE_ERROR();
                 }
                 break;
             case STATE_SKIP_LINE:
@@ -2072,8 +2146,8 @@ duperror:
                 break;
             default:
                 message(MESS_FATAL,
-                        "%s: %d: readConfigFile() unknown state\n",
-                        configFile, lineNum);
+                        "%s: %d: readConfigFile() unknown state: %#x\n",
+                        configFile, lineNum, state);
         }
         if (*start == '\n') {
             lineNum++;
@@ -2093,12 +2167,16 @@ next_state: ;
 
     munmap(buf, length);
     close(fd);
+    free(globerr_msg);
     return logerror;
 error:
+    if (newlog != defConfig)
+        freeTailLogs(1);
     /* free is a NULL-safe operation */
     free(key);
     munmap(buf, length);
     close(fd);
+    free(globerr_msg);
     return 1;
 }
 

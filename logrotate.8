@@ -1,4 +1,4 @@
-.TH LOGROTATE 8 "3.18.0" "Linux" "System Administrator's Manual"
+.TH LOGROTATE 8 "3.21.0" "Linux" "System Administrator's Manual"
 .\" Per groff_man(7), the TQ macro should be copied from an-ext.tmac when
 .\" not running under groff.  That's not quite right; not all groff
 .\" installations include this macro.  So bring it in with another name
@@ -21,6 +21,7 @@ logrotate \(hy rotates, compresses, and mails system logs
 \fR[\fB\-\-debug\fR]
 \fR[\fB\-\-state\fR \fIfile\fR]
 \fR[\fB\-\-skip-state-lock\fR]
+\fR[\fB\-\-wait-for-state-lock\fR]
 \fR[\fB\-\-verbose\fR]
 \fR[\fB\-\-log\fR \fIfile\fR]
 \fR[\fB\-\-mail\fR \fIcommand\fR]
@@ -51,7 +52,7 @@ a config file.
 If no command line arguments are given, \fBlogrotate\fR will print
 version and copyright information, along with a short usage summary.  If
 any errors occur while rotating logs, \fBlogrotate\fR will exit with
-non-zero status.
+non-zero status, although the state file will be updated.
 
 .SH OPTIONS
 
@@ -75,10 +76,17 @@ if \fBlogrotate\fR is being run as a different user for various sets of
 log files.  To prevent parallel execution \fBlogrotate\fR by default
 acquires a lock on the state file, if it cannot be acquired \fBlogrotate\fR
 will exit with value 3.  The default state file is \fI/var/lib/logrotate.status\fR.
+If \fI/dev/null\fR is given as the state file, then \fBlogrotate\fR will
+not try to lock or write the state file.
 
 .TP
 \fB\-\-skip-state-lock\fR
 Do not lock the state file, for example if locking is unsupported or prohibited.
+
+.TP
+\fB\-\-wait-for-state-lock\fR
+Wait until lock on the state file is released by another logrotate process.
+This option may cause logrotate to wait indefinitely.  Use with caution.
 
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
@@ -154,6 +162,7 @@ compress
     rotate 2
     olddir /var/log/news/old
     missingok
+    sharedscripts
     postrotate
         kill \-HUP $(cat /var/run/inn.pid)
     endscript
@@ -192,9 +201,7 @@ Normal shell quoting rules apply, with \fB'\fR, \fB"\fR, and \fB\e\fR
 characters supported.
 
 The next section defines the parameters for all of the files in
-\fI/var/log/news\fR. Each file is rotated on a monthly basis.  This is
-considered a single rotation directive and if errors occur for more than
-one file, the log files are not compressed.
+\fI/var/log/news\fR. Each file is rotated on a monthly basis.
 
 The last section uses tilde expansion to rotate log files in the home
 directory of the current user.  This is only available, if your glob
@@ -203,6 +210,11 @@ library supports tilde expansion.  GNU glob does support this.
 Please use wildcards with caution.  If you specify *, \fBlogrotate\fR will
 rotate all files, including previously rotated ones.  A way around this
 is to use the \fBolddir\fR directive or a more exact wildcard (such as *.log).
+
+Please note, by default when using \fBsystemd\fR(1), the option
+\fIProtectSystem=full\fR is set in the \fIlogrotate.service\fR file.
+This prevents \fBlogrotate\fR from modifying logs in \fI/etc\fR
+and \fI/usr\fR.
 
 Here is more information on the directives which may be included in
 a \fBlogrotate\fR configuration file:
@@ -252,8 +264,9 @@ that are directly or indirectly in control of non-privileged users.
 .TP
 \fBhourly\fR
 Log files are rotated every hour.  Note that usually \fBlogrotate\fR is
-configured to be run by cron daily.  You have to change this configuration
-and run \fBlogrotate\fR hourly to be able to really rotate logs hourly.
+configured to be run by cron daily (or by \fIlogrotate.timer\fR when using
+\fBsystemd\fR(1)).  You have to change this configuration and run
+\fBlogrotate\fR hourly to be able to really rotate logs hourly.
 
 .TP
 \fBdaily\fR
@@ -281,7 +294,7 @@ Log files are rotated if the current year is not the same as the last rotation.
 \fBsize \fIsize\fR
 Log files are rotated only if they grow bigger than \fIsize\fR bytes.  If
 \fIsize\fR is followed by \fIk\fR, the size is assumed to be in kilobytes.
-If the \fIM\fR is used, the size is in megabytes, and if \fIG\fR is used, the
+If \fIM\fR is used, the size is in megabytes, and if \fIG\fR is used, the
 size is in gigabytes. So \fIsize 100\fR, \fIsize 100k\fR, \fIsize 100M\fR and
 \fIsize 100G\fR are all valid.  This option is mutually exclusive with the time
 interval options, and it causes log files to be rotated without regard for the
@@ -298,6 +311,10 @@ message.  See also \fBnomissingok\fR.
 .TP
 \fBnomissingok\fR
 If a log file does not exist, issue an error.  This is the default.
+
+.TP
+\fBignoreduplicates\fR
+Ignore any following matches of a log file.
 
 .TP
 \fBifempty\fR
@@ -411,7 +428,8 @@ Make a copy of the log file, but don't change the original at all.
 This option can be used, for instance, to make a snapshot of the current
 log file, or when some other utility needs to truncate or parse the file.
 When this option is used, the \fBcreate\fR option will have no effect,
-as the old log file stays in place.
+as the old log file stays in place.  The \fBcopy\fR option allows storing
+rotated log files on the different devices using \fBolddir\fR directive.
 
 .TP
 \fBnocopy\fR
@@ -427,7 +445,9 @@ and thus might continue writing (appending) to the previous log file forever.
 Note that there is a very small time slice between copying the file and
 truncating it, so some logging data might be lost.
 When this option is used, the \fBcreate\fR option will have no effect,
-as the old log file stays in place.
+as the old log file stays in place.  The \fBcopytruncate\fR option allows
+storing rotated log files on the different devices using \fBolddir\fR
+directive.  The \fBcopytruncate\fR option implies \fBnorenamecopy\fR.
 
 .TP
 \fBnocopytruncate\fR
@@ -438,9 +458,15 @@ Do not truncate the original log file in place after creating a copy
 \fBrenamecopy\fR
 Log file is renamed to temporary filename in the same directory by adding
 ".tmp" extension to it.  After that, \fBpostrotate\fR script is run
-and log file is copied from temporary filename to final filename.  This allows
-storing rotated log files on the different devices using \fBolddir\fR
-directive. In the end, temporary filename is removed.
+and log file is copied from temporary filename to final filename.  In the end,
+temporary filename is removed.  The \fBrenamecopy\fR option allows storing
+rotated log files on the different devices using \fBolddir\fR directive.
+The \fBrenamecopy\fR option implies \fBnocopytruncate\fR.
+
+.TP
+\fBnorenamecopy\fR
+Do not rename and copy the original log file
+(this overrides the \fBrenamecopy\fR option).
 
 .TP
 \fBshred\fR
@@ -456,6 +482,16 @@ Do not use \fBshred\fR when deleting old log files.  See also \fBshred\fR.
 \fBshredcycles\fR \fIcount\fR
 Asks GNU \fBshred\fR(1) to overwrite log files \fBcount\fR times before
 deletion.  Without this option, \fBshred\fR's default will be used.
+
+.TP
+\fBallowhardlink\fR
+Rotate files with multiple hard links; this is off by default.  The target file
+might get emptied, e.g. with \fBshred\fR or \fBcopytruncate\fR.  Use with
+caution, especially when the log files are rotated as root.
+
+.TP
+\fBnoallowhardlink\fR
+Do not rotate files with multiple hard links.  See also \fBallowhardlink\fR.
 
 .SS Compression
 
@@ -713,7 +749,7 @@ The script inherits some traits from the \fBlogrotate\fR process, including
 stderr, stdout, the current directory, the environment, and the umask.
 Scripts are run as the invoking user and group, irrespective of any \fBsu\fR
 directive.  If the \fB\-\-log\fR flag was specified, file descriptor 3 is the
-log file.
+log file.  The current working directory is unspecified.
 
 .SH USER AND GROUP
 

@@ -1,8 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
 #include <unistd.h>
 #ifdef HAVE_VSYSLOG
 #include <syslog.h>
@@ -42,9 +40,12 @@ static void log_once(FILE *where, int level, const char *format, va_list args)
 {
     switch (level) {
         case MESS_DEBUG:
-        case MESS_NORMAL:
-        case MESS_VERBOSE:
             break;
+
+        case MESS_WARN:
+            fprintf(where, "warning: ");
+            break;
+
         default:
             fprintf(where, "error: ");
             break;
@@ -80,9 +81,10 @@ void message(int level, const char *format, ...)
                 priority |= LOG_DEBUG;
                 break;
             case MESS_DEBUG:
-            case MESS_VERBOSE:
-            case MESS_NORMAL:
                 priority |= LOG_INFO;
+                break;
+            case MESS_WARN:
+                priority |= LOG_WARNING;
                 break;
             case MESS_ERROR:
                 priority |= LOG_ERR;
