@@ -4,7 +4,56 @@ All notable changes to this project will be documented in this file.
 
 ## [UNRELEASED]
 
-[UNRELEASED]: https://github.com/logrotate/logrotate/compare/3.18.0...master
+[UNRELEASED]: https://github.com/logrotate/logrotate/compare/3.21.0...master
+
+## [3.21.0] - 2022-12-13
+  - add `ignoreduplicates` directive to allow duplicate file matches (#473)
+  - add `--wait-for-state-lock` option to wait for lock on the state file (#457)
+  - avoid failure when an anonymous non-privileged user runs logrotate (#463)
+  - support home dir expansion in `olddir` (#454)
+  - reduce unnecessary rename operations with `start N` where `N > 1` (#450)
+  - unify handling of log levels (#239 #449)
+  - do not print `error:` when exit code is unaffected (#448)
+
+[3.21.0]: https://github.com/logrotate/logrotate/compare/3.20.1...3.21.0
+
+## [3.20.1] - 2022-05-25
+  - drop world-readable permission on state file even when ACLs are enabled (#446)
+
+[3.20.1]: https://github.com/logrotate/logrotate/compare/3.20.0...3.20.1
+
+## [3.20.0] - 2022-05-25
+  - fix potential DoS from unprivileged users via the state file ([CVE-2022-1348])
+  - fix a misleading debug message with `copytruncate` and `rotate 0` (#443)
+  - add support for unsigned `time_t` (#438)
+  - do not lock state file `/dev/null` (#433)
+
+[CVE-2022-1348]: https://bugzilla.redhat.com/CVE-2022-1348
+
+[3.20.0]: https://github.com/logrotate/logrotate/compare/3.19.0...3.20.0
+
+## [3.19.0] - 2022-01-07
+  - continue on `EINTR` in `compressLogFile()` (#430)
+  - enforce stricter parsing of configuration files (#427, #431)
+  - avoid confusing error message in debug mode (#426)
+  - fix `full_write()` on incomplete write (#415)
+  - do not use `alloca()` any more (#412)
+  - do not rotate hard links unless `allowhardlink` is used (#407)
+  - change directory after dropping privileges (#397)
+  - add defence in depth when dropping privileges (#400)
+  - remove invalid configuration on error (#408)
+  - do not open symbolic link log files by accident (#399)
+  - do not write state if state file is `/dev/null` (#395)
+
+[3.19.0]: https://github.com/logrotate/logrotate/compare/3.18.1...3.19.0
+
+## [3.18.1] - 2021-05-21
+  - fix memory leaks on error-handling paths (#383, #387)
+  - make `renamecopy` and `copytruncate` override each other (#386)
+  - improve error handling in the parser of configuration files (#383)
+  - improve user experience for non-privileged users of logrotate (#372)
+
+[3.18.1]: https://github.com/logrotate/logrotate/compare/3.18.0...3.18.1
 
 ## [3.18.0] - 2021-01-08
   - allow UIDs and GIDs to be specified numerically (#217)

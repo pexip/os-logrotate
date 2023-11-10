@@ -3,7 +3,7 @@ AC_INIT([logrotate],m4_esyscmd([build-aux/git-version-gen --prefix '' .tarball-v
 
 dnl foreign: Do not require AUTHORS, ChangeLog, NEWS, and README to exist
 dnl dist-xz: Produce tar.xz version of the release archive
-AM_INIT_AUTOMAKE(foreign dist-xz)
+AM_INIT_AUTOMAKE([-Wall foreign dist-xz std-options])
 
 # --enable-silent-rules
 m4_ifdef([AM_SILENT_RULES],
@@ -17,6 +17,8 @@ AC_CHECK_MEMBERS([struct stat.st_blksize])
 AC_STRUCT_ST_BLOCKS
 
 AC_CANONICAL_HOST
+
+AC_TYPE_UINT32_T
 
 dnl Use 64-bit file offsets on 32-bit systems (defines C macros if necessary)
 AC_SYS_LARGEFILE
@@ -165,7 +167,8 @@ AC_SUBST(COMPRESS_EXT)
 AC_DEFINE_UNQUOTED([ROOT_UID], [0], [Root user-id.])
 AC_SUBST(ROOT_UID)
 
-AC_CHECK_FUNCS([asprintf madvise qsort secure_getenv strndup strptime utimensat vsyslog])
+AC_CHECK_FUNCS([asprintf futimens madvise secure_getenv strndup utimensat vsyslog])
+AC_CHECK_MEMBERS([struct stat.st_atim, struct stat.st_mtim])
 AC_CONFIG_HEADERS([config.h])
 
 AM_CFLAGS="\
