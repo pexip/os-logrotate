@@ -1,0 +1,66 @@
+From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Sun, 14 Jul 2024 13:10:14 +0200
+Applied-Upstream: https://github.com/logrotate/logrotate/commit/fcc7d80c4133fb2367e6a4c40faf7390bf897a2b
+Subject: test: wait for bash subprocesses
+
+Avoid stray processes if testsuite runs very fast.
+---
+ test/test-0087.sh | 3 +++
+ test/test-0092.sh | 3 +++
+ test/test-0093.sh | 3 ++-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/test/test-0087.sh b/test/test-0087.sh
+index aeff2c6..057dae1 100755
+--- a/test/test-0087.sh
++++ b/test/test-0087.sh
+@@ -11,12 +11,15 @@ touch state
+ chmod 0640 state
+ 
+ $RLR test-config.87 -f &
++process_id=$!
+ 
+ sleep 2
+ 
+ $RLR test-config.87
+ ret=$?
+ 
++wait $process_id || exit $?
++
+ if [ $ret -ne 3 ]; then
+ 	echo "Expected second instance to fail (returned $ret - expected 3)."
+ 	exit 3
+diff --git a/test/test-0092.sh b/test/test-0092.sh
+index be52e14..2d99787 100755
+--- a/test/test-0092.sh
++++ b/test/test-0092.sh
+@@ -10,9 +10,12 @@ preptest test.log 92 1
+ touch state
+ chmod 0644 state
+ flock state -c "sleep 10" &
++process_id=$!
+ 
+ $RLR -f test-config.92 || exit 23
+ 
++wait $process_id || exit $?
++
+ checkoutput <<EOF
+ test.log 0
+ test.log.1 0 zero
+diff --git a/test/test-0093.sh b/test/test-0093.sh
+index a407391..90ca120 100755
+--- a/test/test-0093.sh
++++ b/test/test-0093.sh
+@@ -14,10 +14,11 @@ chmod 0640 state
+ 
+ # run two instances of logrotate in parallel
+ $RLR -f --wait-for-state-lock test-config.93 &
++process_id=$!
+ sleep 1
+ $RLR -f --wait-for-state-lock test-config.93
+ EC2=$?
+-wait || exit $?
++wait $process_id || exit $?
+ [ $EC2 -eq 0 ] || exit $EC2
+ 
+ checkoutput <<EOF

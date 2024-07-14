@@ -1,3 +1,6 @@
+applied-upstream/test-avoid-locale-dependent-errno-string.patch
+applied-upstream/Adjust-file-limit.patch
+applied-upstream/test-wait-for-bash-subprocesses.patch
 debian/skip-cronjob-when-running-with-systemd.patch
 debian/logrotate.conf-disable-dateext-on-Debian.patch
 debian/replace-ELF-header-in-test-case.patch

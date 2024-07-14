@@ -20,10 +20,8 @@ License: BSD-3-Clause
 Files: debian/*
 Copyright:      1999, Joseph Carter
               ?-2017, Paul Martin <pm@debian.org>
-           2018-2022, Christian Göttsche <cgzones@googlemail.com>
+           2018-2024, Christian Göttsche <cgzones@googlemail.com>
 License: GPL-2
-
-## Licenses
 
 License: GPL-2
  This program is free software; you can redistribute it

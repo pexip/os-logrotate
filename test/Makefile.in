@@ -521,6 +521,7 @@ TEST_CASES = \
 	test-0091.sh \
 	test-0092.sh \
 	test-0093.sh \
+	test-0094.sh \
 	test-0100.sh \
 	test-0101.sh \
 	test-0102.sh \
@@ -529,7 +530,11 @@ TEST_CASES = \
 	test-0105.sh \
 	test-0106.sh \
 	test-0107.sh \
-	test-0108.sh
+	test-0108.sh \
+	test-0109.sh \
+	test-0110.sh \
+	test-0111.sh \
+	test-0112.sh
 
 EXTRA_DIST = \
 	compress \
@@ -1382,6 +1387,13 @@ test-0093.sh.log: test-0093.sh
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-0094.sh.log: test-0094.sh
+	@p='test-0094.sh'; \
+	b='test-0094.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 test-0100.sh.log: test-0100.sh
 	@p='test-0100.sh'; \
 	b='test-0100.sh'; \
@@ -1441,6 +1453,34 @@ test-0107.sh.log: test-0107.sh
 test-0108.sh.log: test-0108.sh
 	@p='test-0108.sh'; \
 	b='test-0108.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-0109.sh.log: test-0109.sh
+	@p='test-0109.sh'; \
+	b='test-0109.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-0110.sh.log: test-0110.sh
+	@p='test-0110.sh'; \
+	b='test-0110.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-0111.sh.log: test-0111.sh
+	@p='test-0111.sh'; \
+	b='test-0111.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-0112.sh.log: test-0112.sh
+	@p='test-0112.sh'; \
+	b='test-0112.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
