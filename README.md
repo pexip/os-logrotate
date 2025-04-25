@@ -6,10 +6,11 @@ The logrotate utility is designed to simplify the administration of log files on
 
 The latest release is:
 
-* [logrotate-3.21.0](https://github.com/logrotate/logrotate/releases/download/3.21.0/logrotate-3.21.0.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.21.0/logrotate-3.21.0.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.21.0))
+* [logrotate-3.22.0](https://github.com/logrotate/logrotate/releases/download/3.22.0/logrotate-3.22.0.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.22.0/logrotate-3.22.0.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.22.0))
 
 Previous releases:
 
+* [logrotate-3.21.0](https://github.com/logrotate/logrotate/releases/download/3.21.0/logrotate-3.21.0.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.21.0/logrotate-3.21.0.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.21.0))
 * [logrotate-3.20.1](https://github.com/logrotate/logrotate/releases/download/3.20.1/logrotate-3.20.1.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.20.1/logrotate-3.20.1.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.20.1))
 * [logrotate-3.20.0](https://github.com/logrotate/logrotate/releases/download/3.20.0/logrotate-3.20.0.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.20.0/logrotate-3.20.0.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.20.0))
 * [logrotate-3.19.0](https://github.com/logrotate/logrotate/releases/download/3.19.0/logrotate-3.19.0.tar.xz) ([sig](https://github.com/logrotate/logrotate/releases/download/3.19.0/logrotate-3.19.0.tar.xz.asc)) ([Changelog](https://github.com/logrotate/logrotate/releases/tag/3.19.0))
@@ -33,10 +34,10 @@ Previous releases:
 
 You can also obtain code by using git checkout:
 ```
-git clone https://github.com/logrotate/logrotate.git -b master
+git clone https://github.com/logrotate/logrotate.git -b main
 ```
 
-Replace `master` with branch or tag you intend to checkout
+Replace `main` with branch or tag you intend to checkout
 
 ## Verify and unpack
 
@@ -97,3 +98,5 @@ make
 # Patches and Questions
 
 Open issues or pull requests on GitHub.
+
+More details in CONTRIBUTING.md file for pull requests.
