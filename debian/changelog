@@ -1,3 +1,30 @@
+logrotate (3.22.0-1) unstable; urgency=medium
+
+  * New upstream version 3.22.0
+
+  * d/tests/control: drop redundant Depends
+  * d/control: bump to std version 4.7.0 (no further changes)
+  * d/upstream/signing-key.asc: add key for new release
+  * d/patches: cherry-pick upstream fixes:
+    - test-avoid-locale-dependent-errno-string.patch:
+      make testsuite reproducible
+    - Adjust-file-limit.patch:
+      silence GCC warning with LTO on 32bit
+    - test-wait-for-bash-subprocesses.patch:
+      wait for subprocesses in testsuite
+  * d/copyright: drop comment
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Sun, 14 Jul 2024 18:30:23 +0200
+
+logrotate (3.21.0-2) unstable; urgency=medium
+
+  * d/control: bump to std version 4.6.2 (no further changes)
+  * d/copyright: bump year
+  * d/patches: set Forwarded header
+  * debian: install systemd units via dh_installsystemd (Closes: #1059999)
+
+ -- Christian Göttsche <cgzones@googlemail.com>  Thu, 04 Jan 2024 19:58:20 +0100
+
 logrotate (3.21.0-1+pexip24u3) pexip-bookworm; urgency=medium
 
   * New versioning scheme

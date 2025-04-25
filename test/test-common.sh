@@ -50,6 +50,19 @@ else
   exit 1
 fi
 
+# check for date(1) support of operating on a time given from the command
+# line instead of the current time. Necessary for test 0085.
+if date --date @42 +%Y%m%d%H%M > /dev/null 2>&1; then
+  DATE_DATEARG='date --date'
+elif gdate --date @42 +%Y%m%d%H%M > /dev/null 2>&1; then
+  DATE_DATEARG='gdate --date'
+else
+  echo "no date command supporting argument --date found:"
+  date --date @42 +%Y%m%d%H%M
+  gdate --date @42 +%Y%m%d%H%M
+  exit 1
+fi
+
 TESTDIR="$(basename "$0" .sh)"
 mkdir -p "$TESTDIR"
 cd "$TESTDIR" || exit $?
@@ -82,7 +95,7 @@ genconfig() {
     user=$(id -u -n)
     group=$(id -g -n)
     rootgroup=$(id -g -n root)
-    sed "s,&DIR&,$PWD,g" < $input | sed "s,&USER&,$user,g" | sed "s,&GROUP&,$group,g" | sed "s,&ROOTGROUP&,$rootgroup,g" > $output
+    sed "s,&DIR&,$PWD,g" < $input | sed "s,&USER&,\"$user\",g" | sed "s,&GROUP&,\"$group\",g" | sed "s,&ROOTGROUP&,\"$rootgroup\",g" > $output
     chmod go-w $output
     config_crc=$(${MD5SUM} $output)
 }
@@ -118,7 +131,7 @@ createlog() {
 	    what=seventh
 	    ;;
 	8)
-	    what=eight
+	    what=eighth
 	    ;;
 	9)
 	    what=ninth

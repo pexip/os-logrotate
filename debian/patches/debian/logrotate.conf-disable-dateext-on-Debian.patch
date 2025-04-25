@@ -1,5 +1,6 @@
 From: =?utf-8?q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Date: Sun, 28 Feb 2021 17:24:40 +0100
+Forwarded: not-needed
 Subject: logrotate.conf: disable dateext on Debian
 
 The option dateext has not been enabled since its introduction in
